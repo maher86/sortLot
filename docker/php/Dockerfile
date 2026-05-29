@@ -39,6 +39,5 @@ RUN echo "upload_max_filesize = 50M" >> /usr/local/etc/php/conf.d/custom.ini \
 
 WORKDIR /var/www/html
 
-# Run as www-data
-RUN chown -R www-data:www-data /var/www/html
-USER www-data
+COPY composer.json composer.lock ./
+RUN composer install --no-interaction --no-scripts --prefer-dist --no-progress

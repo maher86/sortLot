@@ -35,8 +35,8 @@
 | **Task** | Repository & Docker Setup |
 | **Branch pattern** | `task/phase-1-step-1-1-docker-setup` |
 | **PR target** | `develop` |
-| **Status** | 🔴 Not started |
-| **Last updated** | — |
+| **Status** | ✅ Step 1.1 complete |
+| **Last updated** | 2026-05-30 |
 | **Blocked?** | No |
 
 ---
@@ -47,21 +47,21 @@
 
 ### Step 1.1 — Repository & Docker Setup
 Branch: `task/phase-1-step-1-1-docker-setup`
-- [ ] Root `.gitignore`
-- [ ] `docker-compose.yml`
-- [ ] `docker-compose.test.yml`
-- [ ] `docker-compose.prod.yml`
-- [ ] `docker/nginx/default.conf`
-- [ ] `docker/php/Dockerfile`
-- [ ] `docker/php/Dockerfile.prod`
-- [ ] `docker/mysql/init.sql`
-- [ ] Laravel 11: `composer create-project laravel/laravel backend`
-- [ ] Next.js 14: `npx create-next-app@14 frontend --typescript --tailwind --app`
-- [ ] `backend/.env.example`
-- [ ] `frontend/.env.local.example`
-- [ ] `backend/phpunit.xml`
-- [ ] **✅ TEST:** `docker-compose up -d` → all containers healthy
-- [ ] **✅ TEST:** `curl http://localhost/api/v1/health` → 200
+- [x] Root `.gitignore` (2026-05-30)
+- [x] `docker-compose.yml` (2026-05-30)
+- [x] `docker-compose.test.yml` (2026-05-30)
+- [x] `docker-compose.prod.yml` (2026-05-30)
+- [x] `docker/nginx/default.conf` (2026-05-30)
+- [x] `docker/php/Dockerfile` (2026-05-30)
+- [x] `docker/php/Dockerfile.prod` (2026-05-30)
+- [x] `docker/mysql/init.sql` (2026-05-30)
+- [x] Laravel 11: `composer create-project laravel/laravel backend` (2026-05-30)
+- [x] Next.js 14: `npx create-next-app@14 frontend --typescript --tailwind --app` (2026-05-30)
+- [x] `backend/.env.example` (2026-05-30)
+- [x] `frontend/.env.local.example` (2026-05-30)
+- [x] `backend/phpunit.xml` (2026-05-30)
+- [x] **✅ TEST:** `docker-compose up -d` → all containers healthy (2026-05-30)
+- [x] **✅ TEST:** `curl http://localhost/api/v1/health` → 200 (2026-05-30)
 
 ### Step 1.2 — Laravel Base Configuration
 Branch: `task/phase-1-step-1-2-laravel-base-config`
@@ -172,7 +172,7 @@ Branch: `task/phase-1-step-1-6-cicd-pipeline`
 
 ## ✅ COMPLETED
 
-_(none yet)_
+- Phase 1 / Step 1.1 — Repository & Docker Setup (2026-05-30)
 
 ---
 
@@ -273,5 +273,6 @@ git push origin main
 | Date | Session work | Branch pushed | PR # |
 |------|-------------|---------------|------|
 | — | Planning complete, all docs generated | — | — |
+| 2026-05-30 | Phase 1 Step 1.1 Docker setup complete; Laravel 11, Next.js 14, Docker stack, health checks, and required tests green | task/phase-1-step-1-1-docker-setup | auto-pr pending |
 
 > Agent: add a row here at the end of every session.
