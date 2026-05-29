@@ -31,11 +31,11 @@
 | Field | Value |
 |-------|-------|
 | **Phase** | 1 |
-| **Step** | 1.2 |
-| **Task** | Laravel Base Configuration |
-| **Branch pattern** | `task/phase-1-step-1-2-laravel-base-config` |
+| **Step** | 1.3 |
+| **Task** | Auth + RBAC Migrations & Seeders |
+| **Branch pattern** | `task/phase-1-step-1-3-auth-rbac-migrations` |
 | **PR target** | `develop` |
-| **Status** | ✅ Step 1.2 complete |
+| **Status** | ✅ Step 1.3 complete |
 | **Last updated** | 2026-05-30 |
 | **Blocked?** | No |
 
@@ -76,13 +76,13 @@ Branch: `task/phase-1-step-1-2-laravel-base-config`
 
 ### Step 1.3 — Auth + RBAC Migrations & Seeders
 Branch: `task/phase-1-step-1-3-auth-rbac-migrations`
-- [ ] Migration: extend `users` (phone, is_active, last_login_at, last_login_ip, deleted_at)
-- [ ] Run Spatie permission migrations
-- [ ] `database/seeders/PermissionSeeder.php` — all permissions from `docs/architecture/ROLES.md`
-- [ ] `database/seeders/RoleSeeder.php` — 5 roles, assign permissions
-- [ ] `database/seeders/UserSeeder.php` — default super_admin
-- [ ] `DatabaseSeeder.php` calls all three
-- [ ] **✅ TEST:** `php artisan test --filter=RoleSeederTest`
+- [x] Migration: extend `users` (phone, is_active, last_login_at, last_login_ip, deleted_at) (2026-05-30)
+- [x] Run Spatie permission migrations (2026-05-30)
+- [x] `database/seeders/PermissionSeeder.php` — all permissions from `docs/architecture/ROLES.md` (2026-05-30)
+- [x] `database/seeders/RoleSeeder.php` — 5 roles, assign permissions (2026-05-30)
+- [x] `database/seeders/UserSeeder.php` — default super_admin (2026-05-30)
+- [x] `DatabaseSeeder.php` calls all three (2026-05-30)
+- [x] **✅ TEST:** `php artisan test --filter=RoleSeederTest` (2026-05-30)
 
 ### Step 1.4 — Auth API Endpoints
 Branch: `task/phase-1-step-1-4-auth-api`
@@ -174,6 +174,7 @@ Branch: `task/phase-1-step-1-6-cicd-pipeline`
 
 - Phase 1 / Step 1.1 — Repository & Docker Setup (2026-05-30)
 - Phase 1 / Step 1.2 — Laravel Base Configuration (2026-05-30)
+- Phase 1 / Step 1.3 — Auth + RBAC Migrations & Seeders (2026-05-30)
 
 ---
 
@@ -276,5 +277,6 @@ git push origin main
 | — | Planning complete, all docs generated | — | — |
 | 2026-05-30 | Phase 1 Step 1.1 Docker setup complete; Laravel 11, Next.js 14, Docker stack, health checks, and required tests green | task/phase-1-step-1-1-docker-setup | auto-pr pending |
 | 2026-05-30 | Phase 1 Step 1.2 Laravel base config complete; Sanctum, Permission, Horizon, CORS, health checks, and required tests green | task/phase-1-step-1-2-laravel-base-config | auto-pr pending |
+| 2026-05-30 | Phase 1 Step 1.3 auth/RBAC migrations and seeders complete; RoleSeederTest and required suites green | task/phase-1-step-1-3-auth-rbac-migrations | auto-pr pending |
 
 > Agent: add a row here at the end of every session.
