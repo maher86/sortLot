@@ -1,50 +1,20 @@
 name: sortlot-test
 
-# Overrides docker-compose.yml for test environment.
-# Usage:
-#   docker-compose -f docker-compose.yml -f docker-compose.test.yml up -d
-#   docker-compose -f docker-compose.yml -f docker-compose.test.yml exec php php artisan test
-
 services:
-
   php:
     environment:
       APP_ENV: testing
       APP_DEBUG: "true"
       DB_DATABASE: sortlot_test
-      DB_USERNAME: sortlot
-      DB_PASSWORD: sortlot_secret
-      CACHE_DRIVER: array
+      CACHE_STORE: array
       SESSION_DRIVER: array
       QUEUE_CONNECTION: sync
       MAIL_MAILER: array
 
-  # No Horizon in test (queue is sync)
-  horizon:
-    profiles:
-      - disabled
+  mysql:
+    environment:
+      MYSQL_DATABASE: sortlot_test
 
-  # No Reverb in test
-  reverb:
-    profiles:
-      - disabled
-
-  # No Mailhog in test
-  mailhog:
-    profiles:
-      - disabled
-
-  # No MinIO in test (use local disk)
   minio:
-    profiles:
-      - disabled
-
-  # No frontend in test
-  node:
-    profiles:
-      - disabled
-
-  # No nginx in test
-  nginx:
     profiles:
       - disabled
