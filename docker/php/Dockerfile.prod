@@ -1,0 +1,49 @@
+FROM php:8.3-fpm-alpine AS base
+
+RUN apk add --no-cache \
+    git curl zip unzip \
+    libpng-dev libzip-dev \
+    oniguruma-dev icu-dev linux-headers
+
+RUN docker-php-ext-install \
+    pdo_mysql mbstring zip gd bcmath pcntl intl opcache
+
+RUN apk add --no-cache $PHPIZE_DEPS \
+    && pecl install redis \
+    && docker-php-ext-enable redis \
+    && apk del $PHPIZE_DEPS
+
+COPY --from=composer:2.7 /usr/bin/composer /usr/bin/composer
+
+# opcache tuned for production
+RUN echo "opcache.enable=1" >> /usr/local/etc/php/conf.d/opcache.ini \
+    && echo "opcache.memory_consumption=256" >> /usr/local/etc/php/conf.d/opcache.ini \
+    && echo "opcache.max_accelerated_files=20000" >> /usr/local/etc/php/conf.d/opcache.ini \
+    && echo "opcache.validate_timestamps=0" >> /usr/local/etc/php/conf.d/opcache.ini \
+    && echo "upload_max_filesize=50M" >> /usr/local/etc/php/conf.d/custom.ini \
+    && echo "post_max_size=50M" >> /usr/local/etc/php/conf.d/custom.ini \
+    && echo "memory_limit=512M" >> /usr/local/etc/php/conf.d/custom.ini
+
+# --- Build stage: install composer deps ---
+FROM base AS builder
+WORKDIR /app
+COPY backend/composer.json backend/composer.lock ./
+RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
+
+COPY backend/ .
+RUN php artisan config:cache \
+    && php artisan route:cache \
+    && php artisan view:cache \
+    && php artisan event:cache
+
+# --- Final production image ---
+FROM base AS production
+WORKDIR /var/www/html
+
+COPY --from=builder /app .
+
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html/storage \
+    && chmod -R 755 /var/www/html/bootstrap/cache
+
+USER www-data

@@ -1,0 +1,127 @@
+name: Frontend Tests
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/frontend-tests.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'frontend/**'
+
+jobs:
+  test:
+    name: Playwright E2E
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root_secret
+          MYSQL_DATABASE: sortlot_test
+          MYSQL_USER: sortlot
+          MYSQL_PASSWORD: sortlot_secret
+        ports: [3306:3306]
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -u sortlot -psortlot_secret"
+          --health-interval=10s --health-retries=10
+
+      redis:
+        image: redis:7-alpine
+        ports: [6379:6379]
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=10s --health-retries=5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP (for Laravel backend)
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: pdo_mysql, mbstring, zip, gd, bcmath, pcntl, intl, redis
+          tools: composer:v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install backend deps
+        working-directory: backend
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Boot Laravel for E2E
+        working-directory: backend
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+          echo "DB_HOST=127.0.0.1" >> .env
+          echo "DB_DATABASE=sortlot_test" >> .env
+          echo "DB_USERNAME=sortlot" >> .env
+          echo "DB_PASSWORD=sortlot_secret" >> .env
+          echo "REDIS_HOST=127.0.0.1" >> .env
+          echo "QUEUE_CONNECTION=sync" >> .env
+          echo "CACHE_DRIVER=array" >> .env
+          php artisan migrate --force --env=testing
+          php artisan db:seed --force --env=testing
+          php artisan serve --port=8000 &
+          sleep 3
+
+      - name: Install frontend deps
+        working-directory: frontend
+        run: npm ci
+
+      - name: Install Playwright browsers
+        working-directory: frontend
+        run: npx playwright install --with-deps chromium
+
+      - name: Build Next.js
+        working-directory: frontend
+        env:
+          NEXT_PUBLIC_API_URL: http://127.0.0.1:8000/api/v1
+          NEXT_PUBLIC_APP_URL: http://127.0.0.1:8000
+        run: npm run build
+
+      - name: Run Playwright tests
+        working-directory: frontend
+        env:
+          NEXT_PUBLIC_API_URL: http://127.0.0.1:8000/api/v1
+          NEXT_PUBLIC_APP_URL: http://127.0.0.1:8000
+          BASE_URL: http://localhost:3000
+        run: |
+          npm run start &
+          sleep 5
+          npx playwright test
+
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: frontend/playwright-report/
+          retention-days: 7
+
+  lint:
+    name: TypeScript & ESLint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+        working-directory: frontend
+      - run: npm run lint
+        working-directory: frontend
+      - run: npm run type-check
+        working-directory: frontend
