@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ItemController;
 use App\Http\Controllers\Api\PackageController;
+use App\Http\Controllers\Api\PreferenceController;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Route;
@@ -30,6 +31,17 @@ Route::prefix('auth')->group(function (): void {
 });
 
 Route::middleware('auth:sanctum')->group(function (): void {
+    Route::get('/preferences', [PreferenceController::class, 'index']);
+    Route::patch('/preferences', [PreferenceController::class, 'update']);
+    Route::get('/preferences/pricing-tiers', [PreferenceController::class, 'pricingTiers']);
+    Route::post('/preferences/pricing-tiers', [PreferenceController::class, 'storePricingTier']);
+    Route::patch('/preferences/pricing-tiers/{pricingTier}', [PreferenceController::class, 'updatePricingTier']);
+    Route::delete('/preferences/pricing-tiers/{pricingTier}', [PreferenceController::class, 'destroyPricingTier']);
+    Route::get('/preferences/item-types', [PreferenceController::class, 'itemTypes']);
+    Route::post('/preferences/item-types', [PreferenceController::class, 'storeItemType']);
+    Route::patch('/preferences/item-types/{itemType}', [PreferenceController::class, 'updateItemType']);
+    Route::delete('/preferences/item-types/{itemType}', [PreferenceController::class, 'destroyItemType']);
+
     Route::get('/items/sku/{sku}', [ItemController::class, 'findBySku']);
     Route::get('/items/barcode/{barcode}', [ItemController::class, 'findByBarcode']);
     Route::patch('/items/{item}/status', [ItemController::class, 'changeStatus']);
