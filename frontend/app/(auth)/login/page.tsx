@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AxiosError } from "axios";
 import { LogIn } from "lucide-react";
@@ -19,7 +18,6 @@ const loginSchema = z.object({
 type LoginForm = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
-  const router = useRouter();
   const login = useAuthStore((state) => state.login);
   const isLoading = useAuthStore((state) => state.isLoading);
   const [error, setError] = useState<string | null>(null);
@@ -33,7 +31,7 @@ export default function LoginPage() {
 
     try {
       await login(values.email, values.password);
-      router.push("/dashboard");
+      window.location.assign("/dashboard");
     } catch (caught) {
       const message =
         caught instanceof AxiosError && caught.response?.status === 429
