@@ -41,7 +41,9 @@ async function createItem(page: import("@playwright/test").Page) {
   });
   expect(itemResponse.ok()).toBeTruthy();
 
-  return { barcode };
+  const itemPayload = (await itemResponse.json()) as { data: { id: string }[] };
+
+  return { barcode, itemId: itemPayload.data[0].id };
 }
 
 test.beforeEach(async ({ page }) => {
@@ -49,7 +51,10 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("item list shows rows and quick status updates", async ({ page }) => {
-  const { barcode } = await createItem(page);
+  const { barcode, itemId } = await createItem(page);
+
+  await page.goto(`/items/${itemId}`);
+  await expect(page.getByRole("definition").filter({ hasText: barcode })).toBeVisible();
 
   await page.goto("/items");
   await page.getByPlaceholder("Search SKU or barcode").fill(barcode);

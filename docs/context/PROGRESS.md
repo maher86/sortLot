@@ -31,11 +31,11 @@
 | Field | Value |
 |-------|-------|
 | **Phase** | 2 |
-| **Step** | 2.6 |
-| **Task** | Frontend: Items Module |
-| **Branch pattern** | `task/phase-2-step-2-6-frontend-items-module` |
+| **Step** | 2.7 |
+| **Task** | Frontend: Preferences Module |
+| **Branch pattern** | `task/phase-2-step-2-7-frontend-preferences-module` |
 | **PR target** | `develop` |
-| **Status** | ✅ Step 2.6 complete |
+| **Status** | ✅ Phase 2 complete |
 | **Last updated** | 2026-05-30 |
 | **Blocked?** | No — auto-PR creation requires GitHub repo workflow permission or manual PR |
 
@@ -127,13 +127,13 @@ Branch: `task/phase-1-step-1-6-cicd-pipeline`
 - [x] Step 2.4 — Preferences API (Pricing Tiers, Item Types) (2026-05-30)
 - [x] Step 2.5 — Frontend: Packages Module (2026-05-30)
 - [x] Step 2.6 — Frontend: Items Module (2026-05-30)
-- [ ] Step 2.7 — Frontend: Preferences Module
+- [x] Step 2.7 — Frontend: Preferences Module (2026-05-30)
 
 ---
 
 ## 📋 PHASE 3 — Customers, Suppliers & Invoicing
 > Full detail: `docs/phases/PHASE_3.md`  
-> Status: 🔒 Locked until Phase 2 CI gate passes
+> Status: 🔓 Unlocked — Phase 2 local suite passed
 
 - [ ] Step 3.1 — Customers & Suppliers
 - [ ] Step 3.2 — Invoice Core (Service, Models, Number generation)
@@ -184,6 +184,7 @@ Branch: `task/phase-1-step-1-6-cicd-pipeline`
 - Phase 2 / Step 2.4 — Preferences API (Pricing Tiers, Item Types) (2026-05-30)
 - Phase 2 / Step 2.5 — Frontend: Packages Module (2026-05-30)
 - Phase 2 / Step 2.6 — Frontend: Items Module (2026-05-30)
+- Phase 2 / Step 2.7 — Frontend: Preferences Module (2026-05-30)
 
 ---
 
@@ -296,5 +297,6 @@ git push origin main
 | 2026-05-30 | Phase 2 Step 2.4 preferences API complete; flat preferences, pricing tier CRUD, item type CRUD, Redis-tag cache invalidation, and required suites green | task/phase-2-step-2-4-preferences-api | auto-pr pending |
 | 2026-05-30 | Phase 2 Step 2.5 frontend packages module complete; list, create, detail, status timeline, sorting action, bulk add items, hooks, and Playwright flows green | task/phase-2-step-2-5-frontend-packages-module | auto-pr pending |
 | 2026-05-30 | Phase 2 Step 2.6 frontend items module complete; item master list, advanced filters, quick status changes, item detail, barcode/SKU display, and Playwright flows green | task/phase-2-step-2-6-frontend-items-module | auto-pr pending |
+| 2026-05-30 | Phase 2 Step 2.7 frontend preferences module complete; tabbed preferences UI, pricing tier inline edits, item type tools, company/invoice/VAT panels, and required suites green | task/phase-2-step-2-7-frontend-preferences-module | auto-pr pending |
 
 > Agent: add a row here at the end of every session.
