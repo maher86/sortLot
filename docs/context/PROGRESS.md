@@ -31,12 +31,12 @@
 | Field | Value |
 |-------|-------|
 | **Phase** | 3 |
-| **Step** | 3.1 |
-| **Task** | Customers & Suppliers |
-| **Branch pattern** | `task/phase-3-step-3-1-customers-suppliers` |
+| **Step** | 3.2 |
+| **Task** | Invoice Core (Service, Models, Number generation) |
+| **Branch pattern** | `task/phase-3-step-3-2-invoice-core` |
 | **PR target** | `develop` |
-| **Status** | ✅ Step 3.1 complete |
-| **Last updated** | 2026-05-30 |
+| **Status** | ✅ Step 3.2 complete |
+| **Last updated** | 2026-05-31 |
 | **Blocked?** | No — auto-PR creation requires GitHub repo workflow permission or manual PR |
 
 ---
@@ -136,7 +136,7 @@ Branch: `task/phase-1-step-1-6-cicd-pipeline`
 > Status: 🔓 Unlocked — Phase 2 local suite passed
 
 - [x] Step 3.1 — Customers & Suppliers (2026-05-30)
-- [ ] Step 3.2 — Invoice Core (Service, Models, Number generation)
+- [x] Step 3.2 — Invoice Core (Service, Models, Number generation) (2026-05-31)
 - [ ] Step 3.3 — Invoice PDF Generation
 - [ ] Step 3.4 — Overdue Scheduler
 - [ ] Step 3.5 — Frontend: Customers & Suppliers
@@ -186,6 +186,7 @@ Branch: `task/phase-1-step-1-6-cicd-pipeline`
 - Phase 2 / Step 2.6 — Frontend: Items Module (2026-05-30)
 - Phase 2 / Step 2.7 — Frontend: Preferences Module (2026-05-30)
 - Phase 3 / Step 3.1 — Customers & Suppliers (2026-05-30)
+- Phase 3 / Step 3.2 — Invoice Core (Service, Models, Number generation) (2026-05-31)
 
 ---
 
@@ -300,5 +301,6 @@ git push origin main
 | 2026-05-30 | Phase 2 Step 2.6 frontend items module complete; item master list, advanced filters, quick status changes, item detail, barcode/SKU display, and Playwright flows green | task/phase-2-step-2-6-frontend-items-module | auto-pr pending |
 | 2026-05-30 | Phase 2 Step 2.7 frontend preferences module complete; tabbed preferences UI, pricing tier inline edits, item type tools, company/invoice/VAT panels, and required suites green | task/phase-2-step-2-7-frontend-preferences-module | auto-pr pending |
 | 2026-05-30 | Phase 3 Step 3.1 customers and suppliers complete; migrations, models, CRUD APIs, restore endpoints, customer statements, credit limit warning logic, policies, and required suites green | task/phase-3-step-3-1-customers-suppliers | auto-pr pending |
+| 2026-05-31 | Phase 3 Step 3.2 invoice core complete; invoice, line, payment schema; services; numbering; VAT; status flow; payments; sales/purchase APIs; credit notes; and required suites green | task/phase-3-step-3-2-invoice-core | auto-pr pending |
 
 > Agent: add a row here at the end of every session.
