@@ -62,7 +62,10 @@ class PermissionSeeder extends Seeder
         app(PermissionRegistrar::class)->forgetCachedPermissions();
 
         foreach (self::PERMISSIONS as $permission) {
-            Permission::findOrCreate($permission, 'web');
+            Permission::query()->firstOrCreate([
+                'name' => $permission,
+                'guard_name' => 'web',
+            ]);
         }
 
         app(PermissionRegistrar::class)->forgetCachedPermissions();
