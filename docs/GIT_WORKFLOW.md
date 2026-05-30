@@ -34,13 +34,13 @@ Go to: **Settings → Branches → Add branch protection rule**
 
 For `main`:
 - [x] Require a pull request before merging
-- [x] Require status checks to pass: `Backend Tests / PHPUnit`, `Frontend Tests / Playwright`
+- [x] Require status checks to pass: `PHPUnit - PHP 8.3`, `PHP Code Style`, `Playwright E2E`, `TypeScript & ESLint`
 - [x] Require branches to be up to date before merging
 - [x] Do not allow bypassing the above settings
 
 For `develop`:
 - [x] Require a pull request before merging
-- [x] Require status checks to pass: `Backend Tests / PHPUnit`, `Frontend Tests / Playwright`
+- [x] Require status checks to pass: `PHPUnit - PHP 8.3`, `PHP Code Style`, `Playwright E2E`, `TypeScript & ESLint`
 
 ### 4. Add GitHub Secrets
 Go to: **Settings → Secrets and variables → Actions → New repository secret**
@@ -52,6 +52,8 @@ Go to: **Settings → Secrets and variables → Actions → New repository secre
 | `DEPLOY_SSH_KEY` | private SSH key | deploy.yml |
 | `APP_URL` | https://yourdomain.com | deploy.yml |
 | `SLACK_WEBHOOK_URL` | Slack webhook (optional) | deploy.yml |
+
+`GITHUB_TOKEN` is provided by GitHub Actions automatically and is used by `auto-pr.yml`.
 
 ---
 

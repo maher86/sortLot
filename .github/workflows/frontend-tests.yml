@@ -1,15 +1,17 @@
 name: Frontend Tests
 
 on:
+  workflow_call:
   push:
     branches: [main, develop]
     paths:
       - 'frontend/**'
-      - '.github/workflows/frontend-tests.yml'
+      - '.github/workflows/**'
   pull_request:
     branches: [main, develop]
     paths:
       - 'frontend/**'
+      - '.github/workflows/**'
 
 jobs:
   test:
@@ -68,6 +70,8 @@ jobs:
           echo "DB_USERNAME=sortlot" >> .env
           echo "DB_PASSWORD=sortlot_secret" >> .env
           echo "REDIS_HOST=127.0.0.1" >> .env
+          echo "FRONTEND_URL=http://localhost:3000" >> .env
+          echo "SANCTUM_STATEFUL_DOMAINS=localhost:3000,localhost" >> .env
           echo "QUEUE_CONNECTION=sync" >> .env
           echo "CACHE_DRIVER=array" >> .env
           php artisan migrate --force --env=testing
@@ -86,15 +90,17 @@ jobs:
       - name: Build Next.js
         working-directory: frontend
         env:
-          NEXT_PUBLIC_API_URL: http://127.0.0.1:8000/api/v1
-          NEXT_PUBLIC_APP_URL: http://127.0.0.1:8000
+          NODE_ENV: production
+          NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
+          NEXT_PUBLIC_APP_URL: http://localhost:8000
         run: npm run build
 
       - name: Run Playwright tests
         working-directory: frontend
         env:
-          NEXT_PUBLIC_API_URL: http://127.0.0.1:8000/api/v1
-          NEXT_PUBLIC_APP_URL: http://127.0.0.1:8000
+          NODE_ENV: production
+          NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
+          NEXT_PUBLIC_APP_URL: http://localhost:8000
           BASE_URL: http://localhost:3000
         run: |
           npm run start &
