@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Supplier extends Model
+class Customer extends Model
 {
     use Auditable, HasUlids, SoftDeletes;
 
@@ -20,12 +20,12 @@ class Supplier extends Model
         'email',
         'phone',
         'country',
+        'emirate',
         'address',
         'vat_type',
         'trn',
-        'bank_name',
-        'bank_iban',
-        'bank_swift',
+        'credit_limit_fils',
+        'payment_terms_days',
         'notes',
         'is_active',
     ];
@@ -34,18 +34,24 @@ class Supplier extends Model
     {
         return [
             'vat_type' => VatType::class,
+            'credit_limit_fils' => 'integer',
+            'payment_terms_days' => 'integer',
             'is_active' => 'boolean',
         ];
     }
 
-    public function packages(): HasMany
+    public function salesOrders(): HasMany
     {
-        return $this->hasMany(Package::class);
+        return $this->hasMany(Invoice::class, 'customer_id');
     }
 
-    public function purchaseOrders(): HasMany
+    public function wouldExceedCreditLimit(int $newInvoiceAmountFils, int $currentBalanceFils = 0): bool
     {
-        return $this->hasMany(Invoice::class, 'supplier_id');
+        if ($this->credit_limit_fils <= 0) {
+            return false;
+        }
+
+        return ($currentBalanceFils + $newInvoiceAmountFils) > $this->credit_limit_fils;
     }
 
     public function scopeActive(Builder $query): Builder
