@@ -31,11 +31,11 @@
 | Field | Value |
 |-------|-------|
 | **Phase** | 3 |
-| **Step** | 3.3 |
-| **Task** | Invoice PDF Generation |
-| **Branch pattern** | `task/phase-3-step-3-3-invoice-pdf` |
+| **Step** | 3.4 |
+| **Task** | Overdue Scheduler |
+| **Branch pattern** | `task/phase-3-step-3-4-overdue-scheduler` |
 | **PR target** | `develop` |
-| **Status** | ✅ Step 3.3 complete |
+| **Status** | ✅ Step 3.4 complete |
 | **Last updated** | 2026-05-31 |
 | **Blocked?** | No — auto-PR creation requires GitHub repo workflow permission or manual PR |
 
@@ -138,7 +138,7 @@ Branch: `task/phase-1-step-1-6-cicd-pipeline`
 - [x] Step 3.1 — Customers & Suppliers (2026-05-30)
 - [x] Step 3.2 — Invoice Core (Service, Models, Number generation) (2026-05-31)
 - [x] Step 3.3 — Invoice PDF Generation (2026-05-31)
-- [ ] Step 3.4 — Overdue Scheduler
+- [x] Step 3.4 — Overdue Scheduler (2026-05-31)
 - [ ] Step 3.5 — Frontend: Customers & Suppliers
 - [ ] Step 3.6 — Frontend: Invoicing Module
 
@@ -188,6 +188,7 @@ Branch: `task/phase-1-step-1-6-cicd-pipeline`
 - Phase 3 / Step 3.1 — Customers & Suppliers (2026-05-30)
 - Phase 3 / Step 3.2 — Invoice Core (Service, Models, Number generation) (2026-05-31)
 - Phase 3 / Step 3.3 — Invoice PDF Generation (2026-05-31)
+- Phase 3 / Step 3.4 — Overdue Scheduler (2026-05-31)
 
 ---
 
@@ -304,5 +305,6 @@ git push origin main
 | 2026-05-30 | Phase 3 Step 3.1 customers and suppliers complete; migrations, models, CRUD APIs, restore endpoints, customer statements, credit limit warning logic, policies, and required suites green | task/phase-3-step-3-1-customers-suppliers | auto-pr pending |
 | 2026-05-31 | Phase 3 Step 3.2 invoice core complete; invoice, line, payment schema; services; numbering; VAT; status flow; payments; sales/purchase APIs; credit notes; and required suites green | task/phase-3-step-3-2-invoice-core | auto-pr pending |
 | 2026-05-31 | Phase 3 Step 3.3 invoice PDF generation complete; DomPDF installed, invoice Blade template added, queued PDF job stores to S3/MinIO disk, PDF streaming endpoint added, Playwright stabilized, and required suites green | task/phase-3-step-3-3-invoice-pdf | auto-pr pending |
+| 2026-05-31 | Phase 3 Step 3.4 overdue scheduler complete; daily command marks overdue pending/partial invoices, database notifications are created for invoice creator and accountants, schedule registration tested, and required suites green | task/phase-3-step-3-4-overdue-scheduler | auto-pr pending |
 
 > Agent: add a row here at the end of every session.

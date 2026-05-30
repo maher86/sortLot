@@ -97,6 +97,11 @@ class Invoice extends Model
         return $this->hasMany(Payment::class);
     }
 
+    public function createdBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
     public function recalculate(): void
     {
         $subtotalFils = (int) $this->lines()->sum('line_total_fils');
