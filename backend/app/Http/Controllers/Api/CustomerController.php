@@ -104,7 +104,10 @@ class CustomerController extends Controller
                 ->latest('issue_date');
 
             $invoices = $query->get();
-            $balanceFils = (int) $query->cloneWithout(['orders'])->sum('balance_fils');
+            $balanceFils = (int) $customer->salesOrders()
+                ->when(isset($validated['from']), fn ($query) => $query->whereDate('issue_date', '>=', $validated['from']))
+                ->when(isset($validated['to']), fn ($query) => $query->whereDate('issue_date', '<=', $validated['to']))
+                ->sum('balance_fils');
         }
 
         $projectedInvoiceFils = (int) ($validated['projected_invoice_fils'] ?? 0);

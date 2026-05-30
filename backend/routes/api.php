@@ -2,8 +2,10 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CustomerController;
+use App\Http\Controllers\Api\InvoiceController;
 use App\Http\Controllers\Api\ItemController;
 use App\Http\Controllers\Api\PackageController;
+use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\PreferenceController;
 use App\Http\Controllers\Api\SupplierController;
 use Illuminate\Support\Facades\DB;
@@ -53,6 +55,25 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::get('/customers/{customer}/sales-orders', [CustomerController::class, 'salesOrders']);
     Route::get('/customers/{customer}/statement', [CustomerController::class, 'statement']);
     Route::apiResource('customers', CustomerController::class);
+
+    Route::get('/sales-orders', [InvoiceController::class, 'salesOrders']);
+    Route::post('/sales-orders', [InvoiceController::class, 'storeSalesOrder']);
+    Route::get('/sales-orders/{invoice}', [InvoiceController::class, 'show']);
+    Route::patch('/sales-orders/{invoice}', [InvoiceController::class, 'update']);
+    Route::delete('/sales-orders/{invoice}', [InvoiceController::class, 'destroy']);
+    Route::patch('/sales-orders/{invoice}/confirm', [InvoiceController::class, 'confirm']);
+    Route::patch('/sales-orders/{invoice}/cancel', [InvoiceController::class, 'cancel']);
+    Route::post('/sales-orders/{invoice}/credit-note', [InvoiceController::class, 'creditNote']);
+
+    Route::get('/purchase-orders', [InvoiceController::class, 'purchaseOrders']);
+    Route::post('/purchase-orders', [InvoiceController::class, 'storePurchaseOrder']);
+    Route::get('/purchase-orders/{invoice}', [InvoiceController::class, 'show']);
+    Route::patch('/purchase-orders/{invoice}', [InvoiceController::class, 'update']);
+    Route::delete('/purchase-orders/{invoice}', [InvoiceController::class, 'destroy']);
+    Route::patch('/purchase-orders/{invoice}/confirm', [InvoiceController::class, 'confirm']);
+    Route::patch('/purchase-orders/{invoice}/cancel', [InvoiceController::class, 'cancel']);
+
+    Route::apiResource('payments', PaymentController::class)->only(['index', 'store', 'show', 'destroy']);
 
     Route::get('/items/sku/{sku}', [ItemController::class, 'findBySku']);
     Route::get('/items/barcode/{barcode}', [ItemController::class, 'findByBarcode']);
