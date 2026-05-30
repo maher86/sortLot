@@ -31,11 +31,11 @@
 | Field | Value |
 |-------|-------|
 | **Phase** | 2 |
-| **Step** | 2.4 |
-| **Task** | Preferences API |
-| **Branch pattern** | `task/phase-2-step-2-4-preferences-api` |
+| **Step** | 2.6 |
+| **Task** | Frontend: Items Module |
+| **Branch pattern** | `task/phase-2-step-2-6-frontend-items-module` |
 | **PR target** | `develop` |
-| **Status** | ✅ Step 2.4 complete |
+| **Status** | ✅ Step 2.6 complete |
 | **Last updated** | 2026-05-30 |
 | **Blocked?** | No — auto-PR creation requires GitHub repo workflow permission or manual PR |
 
@@ -125,8 +125,8 @@ Branch: `task/phase-1-step-1-6-cicd-pipeline`
 - [x] Step 2.2 — Package API + Tests (2026-05-30)
 - [x] Step 2.3 — Items API + Tests (2026-05-30)
 - [x] Step 2.4 — Preferences API (Pricing Tiers, Item Types) (2026-05-30)
-- [ ] Step 2.5 — Frontend: Packages Module
-- [ ] Step 2.6 — Frontend: Items Module
+- [x] Step 2.5 — Frontend: Packages Module (2026-05-30)
+- [x] Step 2.6 — Frontend: Items Module (2026-05-30)
 - [ ] Step 2.7 — Frontend: Preferences Module
 
 ---
@@ -182,6 +182,8 @@ Branch: `task/phase-1-step-1-6-cicd-pipeline`
 - Phase 2 / Step 2.2 — Package API + Tests (2026-05-30)
 - Phase 2 / Step 2.3 — Items API + Tests (2026-05-30)
 - Phase 2 / Step 2.4 — Preferences API (Pricing Tiers, Item Types) (2026-05-30)
+- Phase 2 / Step 2.5 — Frontend: Packages Module (2026-05-30)
+- Phase 2 / Step 2.6 — Frontend: Items Module (2026-05-30)
 
 ---
 
@@ -292,5 +294,7 @@ git push origin main
 | 2026-05-30 | Phase 2 Step 2.2 package API complete; resource controller, policy, validation, status transitions, bulk item creation, and required suites green | task/phase-2-step-2-2-package-api-tests | auto-pr pending |
 | 2026-05-30 | Phase 2 Step 2.3 items API complete; CRUD, SKU/barcode lookups, cursor filters, status audit logging, permissions, and required suites green | task/phase-2-step-2-3-items-api-tests | auto-pr pending |
 | 2026-05-30 | Phase 2 Step 2.4 preferences API complete; flat preferences, pricing tier CRUD, item type CRUD, Redis-tag cache invalidation, and required suites green | task/phase-2-step-2-4-preferences-api | auto-pr pending |
+| 2026-05-30 | Phase 2 Step 2.5 frontend packages module complete; list, create, detail, status timeline, sorting action, bulk add items, hooks, and Playwright flows green | task/phase-2-step-2-5-frontend-packages-module | auto-pr pending |
+| 2026-05-30 | Phase 2 Step 2.6 frontend items module complete; item master list, advanced filters, quick status changes, item detail, barcode/SKU display, and Playwright flows green | task/phase-2-step-2-6-frontend-items-module | auto-pr pending |
 
 > Agent: add a row here at the end of every session.
