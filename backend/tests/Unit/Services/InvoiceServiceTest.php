@@ -15,6 +15,7 @@ use App\Models\PricingTier;
 use App\Models\User;
 use App\Services\InvoiceService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class InvoiceServiceTest extends TestCase
@@ -73,6 +74,9 @@ class InvoiceServiceTest extends TestCase
 
     public function test_generate_pdf_send_email_and_credit_note_methods(): void
     {
+        Storage::fake('s3');
+        config(['filesystems.default' => 's3']);
+        config(['queue.default' => 'sync']);
         [$user, $customer] = $this->seededCustomer();
         $service = app(InvoiceService::class);
         $invoice = $service->create([
@@ -90,7 +94,9 @@ class InvoiceServiceTest extends TestCase
         $creditNote = $service->generateCreditNote($invoice->fresh());
 
         $this->assertStringEndsWith("{$invoice->number}.pdf", $path);
+        Storage::disk('s3')->assertExists($path);
         $this->assertNotNull($invoice->fresh()->sent_at);
+        $this->assertNotNull($invoice->fresh()->pdf_generated_at);
         $this->assertSame(InvoiceType::CreditNote, $creditNote->type);
         $this->assertSame($invoice->id, $creditNote->related_invoice_id);
     }

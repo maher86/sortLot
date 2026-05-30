@@ -31,11 +31,11 @@
 | Field | Value |
 |-------|-------|
 | **Phase** | 3 |
-| **Step** | 3.2 |
-| **Task** | Invoice Core (Service, Models, Number generation) |
-| **Branch pattern** | `task/phase-3-step-3-2-invoice-core` |
+| **Step** | 3.3 |
+| **Task** | Invoice PDF Generation |
+| **Branch pattern** | `task/phase-3-step-3-3-invoice-pdf` |
 | **PR target** | `develop` |
-| **Status** | ✅ Step 3.2 complete |
+| **Status** | ✅ Step 3.3 complete |
 | **Last updated** | 2026-05-31 |
 | **Blocked?** | No — auto-PR creation requires GitHub repo workflow permission or manual PR |
 
@@ -137,7 +137,7 @@ Branch: `task/phase-1-step-1-6-cicd-pipeline`
 
 - [x] Step 3.1 — Customers & Suppliers (2026-05-30)
 - [x] Step 3.2 — Invoice Core (Service, Models, Number generation) (2026-05-31)
-- [ ] Step 3.3 — Invoice PDF Generation
+- [x] Step 3.3 — Invoice PDF Generation (2026-05-31)
 - [ ] Step 3.4 — Overdue Scheduler
 - [ ] Step 3.5 — Frontend: Customers & Suppliers
 - [ ] Step 3.6 — Frontend: Invoicing Module
@@ -187,6 +187,7 @@ Branch: `task/phase-1-step-1-6-cicd-pipeline`
 - Phase 2 / Step 2.7 — Frontend: Preferences Module (2026-05-30)
 - Phase 3 / Step 3.1 — Customers & Suppliers (2026-05-30)
 - Phase 3 / Step 3.2 — Invoice Core (Service, Models, Number generation) (2026-05-31)
+- Phase 3 / Step 3.3 — Invoice PDF Generation (2026-05-31)
 
 ---
 
@@ -302,5 +303,6 @@ git push origin main
 | 2026-05-30 | Phase 2 Step 2.7 frontend preferences module complete; tabbed preferences UI, pricing tier inline edits, item type tools, company/invoice/VAT panels, and required suites green | task/phase-2-step-2-7-frontend-preferences-module | auto-pr pending |
 | 2026-05-30 | Phase 3 Step 3.1 customers and suppliers complete; migrations, models, CRUD APIs, restore endpoints, customer statements, credit limit warning logic, policies, and required suites green | task/phase-3-step-3-1-customers-suppliers | auto-pr pending |
 | 2026-05-31 | Phase 3 Step 3.2 invoice core complete; invoice, line, payment schema; services; numbering; VAT; status flow; payments; sales/purchase APIs; credit notes; and required suites green | task/phase-3-step-3-2-invoice-core | auto-pr pending |
+| 2026-05-31 | Phase 3 Step 3.3 invoice PDF generation complete; DomPDF installed, invoice Blade template added, queued PDF job stores to S3/MinIO disk, PDF streaming endpoint added, Playwright stabilized, and required suites green | task/phase-3-step-3-3-invoice-pdf | auto-pr pending |
 
 > Agent: add a row here at the end of every session.
