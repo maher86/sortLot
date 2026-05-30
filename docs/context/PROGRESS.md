@@ -31,11 +31,11 @@
 | Field | Value |
 |-------|-------|
 | **Phase** | 2 |
-| **Step** | 2.2 |
-| **Task** | Package API + Tests |
-| **Branch pattern** | `task/phase-2-step-2-2-package-api-tests` |
+| **Step** | 2.3 |
+| **Task** | Items API + Tests |
+| **Branch pattern** | `task/phase-2-step-2-3-items-api-tests` |
 | **PR target** | `develop` |
-| **Status** | ✅ Step 2.2 complete |
+| **Status** | ✅ Step 2.3 complete |
 | **Last updated** | 2026-05-30 |
 | **Blocked?** | No — auto-PR creation requires GitHub repo workflow permission or manual PR |
 
@@ -123,7 +123,7 @@ Branch: `task/phase-1-step-1-6-cicd-pipeline`
 
 - [x] Step 2.1 — Migrations & Models (2026-05-30)
 - [x] Step 2.2 — Package API + Tests (2026-05-30)
-- [ ] Step 2.3 — Items API + Tests
+- [x] Step 2.3 — Items API + Tests (2026-05-30)
 - [ ] Step 2.4 — Preferences API (Pricing Tiers, Item Types)
 - [ ] Step 2.5 — Frontend: Packages Module
 - [ ] Step 2.6 — Frontend: Items Module
@@ -180,6 +180,7 @@ Branch: `task/phase-1-step-1-6-cicd-pipeline`
 - Phase 1 / Step 1.6 — CI/CD Pipeline Setup (2026-05-30)
 - Phase 2 / Step 2.1 — Packages & Items Migrations & Models (2026-05-30)
 - Phase 2 / Step 2.2 — Package API + Tests (2026-05-30)
+- Phase 2 / Step 2.3 — Items API + Tests (2026-05-30)
 
 ---
 
@@ -288,5 +289,6 @@ git push origin main
 | 2026-05-30 | Phase 1 Step 1.6 CI/CD pipeline complete; local suite green, GitHub backend/frontend CI green, auto-PR workflow blocked by repository workflow permission | task/phase-1-step-1-6-cicd-pipeline | manual PR required |
 | 2026-05-30 | Phase 2 Step 2.1 migrations and models complete; package/item schema, enum casts, seeders, SKU generation, and required suites green | task/phase-2-step-2-1-migrations-models | auto-pr pending |
 | 2026-05-30 | Phase 2 Step 2.2 package API complete; resource controller, policy, validation, status transitions, bulk item creation, and required suites green | task/phase-2-step-2-2-package-api-tests | auto-pr pending |
+| 2026-05-30 | Phase 2 Step 2.3 items API complete; CRUD, SKU/barcode lookups, cursor filters, status audit logging, permissions, and required suites green | task/phase-2-step-2-3-items-api-tests | auto-pr pending |
 
 > Agent: add a row here at the end of every session.

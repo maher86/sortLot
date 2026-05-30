@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\ItemController;
 use App\Http\Controllers\Api\PackageController;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
@@ -29,6 +30,11 @@ Route::prefix('auth')->group(function (): void {
 });
 
 Route::middleware('auth:sanctum')->group(function (): void {
+    Route::get('/items/sku/{sku}', [ItemController::class, 'findBySku']);
+    Route::get('/items/barcode/{barcode}', [ItemController::class, 'findByBarcode']);
+    Route::patch('/items/{item}/status', [ItemController::class, 'changeStatus']);
+    Route::apiResource('items', ItemController::class);
+
     Route::patch('/packages/{package}/status', [PackageController::class, 'changeStatus']);
     Route::post('/packages/{package}/items/bulk', [PackageController::class, 'bulkItems']);
     Route::apiResource('packages', PackageController::class);
