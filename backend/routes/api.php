@@ -1,9 +1,11 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CustomerController;
 use App\Http\Controllers\Api\ItemController;
 use App\Http\Controllers\Api\PackageController;
 use App\Http\Controllers\Api\PreferenceController;
+use App\Http\Controllers\Api\SupplierController;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Route;
@@ -41,6 +43,16 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::post('/preferences/item-types', [PreferenceController::class, 'storeItemType']);
     Route::patch('/preferences/item-types/{itemType}', [PreferenceController::class, 'updateItemType']);
     Route::delete('/preferences/item-types/{itemType}', [PreferenceController::class, 'destroyItemType']);
+
+    Route::post('/suppliers/{supplier}/restore', [SupplierController::class, 'restore']);
+    Route::get('/suppliers/{supplier}/purchase-orders', [SupplierController::class, 'purchaseOrders']);
+    Route::get('/suppliers/{supplier}/packages', [SupplierController::class, 'packages']);
+    Route::apiResource('suppliers', SupplierController::class);
+
+    Route::post('/customers/{customer}/restore', [CustomerController::class, 'restore']);
+    Route::get('/customers/{customer}/sales-orders', [CustomerController::class, 'salesOrders']);
+    Route::get('/customers/{customer}/statement', [CustomerController::class, 'statement']);
+    Route::apiResource('customers', CustomerController::class);
 
     Route::get('/items/sku/{sku}', [ItemController::class, 'findBySku']);
     Route::get('/items/barcode/{barcode}', [ItemController::class, 'findByBarcode']);
