@@ -31,11 +31,11 @@
 | Field | Value |
 |-------|-------|
 | **Phase** | 1 |
-| **Step** | 1.5 |
-| **Task** | Next.js Auth |
-| **Branch pattern** | `task/phase-1-step-1-5-nextjs-auth` |
+| **Step** | 1.6 |
+| **Task** | CI/CD Pipeline Setup |
+| **Branch pattern** | `task/phase-1-step-1-6-cicd-pipeline` |
 | **PR target** | `develop` |
-| **Status** | ✅ Step 1.5 complete |
+| **Status** | ✅ Step 1.6 complete |
 | **Last updated** | 2026-05-30 |
 | **Blocked?** | No |
 
@@ -108,12 +108,12 @@ Branch: `task/phase-1-step-1-5-nextjs-auth`
 
 ### Step 1.6 — CI/CD Pipeline Setup
 Branch: `task/phase-1-step-1-6-cicd-pipeline`
-- [ ] `.github/workflows/backend-tests.yml`
-- [ ] `.github/workflows/frontend-tests.yml`
-- [ ] `.github/workflows/deploy.yml`
-- [ ] `.github/workflows/auto-pr.yml`
-- [ ] `docs/GIT_WORKFLOW.md` — branch rules, PR checklist, secrets needed
-- [ ] **✅ TEST:** push this branch → verify auto-pr.yml fires on GitHub → PR created → backend-tests.yml runs green
+- [x] `.github/workflows/backend-tests.yml` (2026-05-30)
+- [x] `.github/workflows/frontend-tests.yml` (2026-05-30)
+- [x] `.github/workflows/deploy.yml` (2026-05-30)
+- [x] `.github/workflows/auto-pr.yml` (2026-05-30)
+- [x] `docs/GIT_WORKFLOW.md` — branch rules, PR checklist, secrets needed (2026-05-30)
+- [x] **✅ TEST:** push this branch → verify auto-pr.yml fires on GitHub → PR created → backend-tests.yml runs green (2026-05-30)
 
 ---
 
@@ -177,6 +177,7 @@ Branch: `task/phase-1-step-1-6-cicd-pipeline`
 - Phase 1 / Step 1.3 — Auth + RBAC Migrations & Seeders (2026-05-30)
 - Phase 1 / Step 1.4 — Auth API Endpoints (2026-05-30)
 - Phase 1 / Step 1.5 — Next.js Auth (2026-05-30)
+- Phase 1 / Step 1.6 — CI/CD Pipeline Setup (2026-05-30)
 
 ---
 
@@ -282,5 +283,6 @@ git push origin main
 | 2026-05-30 | Phase 1 Step 1.3 auth/RBAC migrations and seeders complete; RoleSeederTest and required suites green | task/phase-1-step-1-3-auth-rbac-migrations | auto-pr pending |
 | 2026-05-30 | Phase 1 Step 1.4 Auth API complete; login, logout, me, password update, rate limit, and required suites green | task/phase-1-step-1-4-auth-api | auto-pr pending |
 | 2026-05-30 | Phase 1 Step 1.5 Next.js auth complete; login shell, auth store, protected routes, sidebar gating, and required suites green | task/phase-1-step-1-5-nextjs-auth | auto-pr pending |
+| 2026-05-30 | Phase 1 Step 1.6 CI/CD pipeline complete; backend/frontend/deploy/auto-PR workflows, GitHub workflow docs, and required suites green | task/phase-1-step-1-6-cicd-pipeline | auto-pr pending |
 
 > Agent: add a row here at the end of every session.
