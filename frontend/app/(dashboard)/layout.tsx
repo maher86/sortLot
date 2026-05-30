@@ -1,7 +1,6 @@
 "use client";
 
 import { type ReactNode, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { LogOut } from "lucide-react";
 
 import { Sidebar } from "@/components/sidebar/Sidebar";
@@ -9,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/lib/stores/auth";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
-  const router = useRouter();
   const user = useAuthStore((state) => state.user);
   const hydrate = useAuthStore((state) => state.hydrate);
   const logout = useAuthStore((state) => state.logout);
@@ -20,7 +18,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   async function handleLogout() {
     await logout();
-    router.push("/login");
+    window.location.assign("/login");
   }
 
   return (
@@ -33,7 +31,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               <p className="text-sm text-muted-foreground">Signed in as</p>
               <p className="text-sm font-medium">{user?.name ?? "Loading"}</p>
             </div>
-            <Button aria-label="Log out" onClick={handleLogout} size="icon" variant="ghost">
+            <Button aria-label="Log out" disabled={!user} onClick={handleLogout} size="icon" variant="ghost">
               <LogOut className="h-4 w-4" />
             </Button>
           </header>
