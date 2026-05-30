@@ -10,8 +10,10 @@ class HealthCheckTest extends TestCase
     {
         $response = $this->getJson('/api/v1/health');
 
-        $response->assertOk()->assertJson([
-            'status' => 'ok',
-        ]);
+        $response->assertOk()
+            ->assertJsonStructure(['status', 'db', 'redis', 'queue'])
+            ->assertJson([
+                'status' => 'ok',
+            ]);
     }
 }

@@ -31,11 +31,11 @@
 | Field | Value |
 |-------|-------|
 | **Phase** | 1 |
-| **Step** | 1.1 |
-| **Task** | Repository & Docker Setup |
-| **Branch pattern** | `task/phase-1-step-1-1-docker-setup` |
+| **Step** | 1.2 |
+| **Task** | Laravel Base Configuration |
+| **Branch pattern** | `task/phase-1-step-1-2-laravel-base-config` |
 | **PR target** | `develop` |
-| **Status** | ✅ Step 1.1 complete |
+| **Status** | ✅ Step 1.2 complete |
 | **Last updated** | 2026-05-30 |
 | **Blocked?** | No |
 
@@ -65,14 +65,14 @@ Branch: `task/phase-1-step-1-1-docker-setup`
 
 ### Step 1.2 — Laravel Base Configuration
 Branch: `task/phase-1-step-1-2-laravel-base-config`
-- [ ] `composer require laravel/sanctum spatie/laravel-permission laravel/horizon`
-- [ ] Publish Sanctum, Permission, Horizon configs
-- [ ] `config/cors.php` — allow `http://localhost:3000`, credentials: true
-- [ ] `config/sanctum.php` — stateful: `localhost:3000`
-- [ ] `.env.example` — Redis for cache/session/queue
-- [ ] Register `EnsureFrontendRequestsAreStateful` on `api` middleware group
-- [ ] `routes/api.php` — `GET /api/v1/health` endpoint
-- [ ] **✅ TEST:** `php artisan test --filter=HealthCheckTest`
+- [x] `composer require laravel/sanctum spatie/laravel-permission laravel/horizon` (2026-05-30)
+- [x] Publish Sanctum, Permission, Horizon configs (2026-05-30)
+- [x] `config/cors.php` — allow `http://localhost:3000`, credentials: true (2026-05-30)
+- [x] `config/sanctum.php` — stateful: `localhost:3000` (2026-05-30)
+- [x] `.env.example` — Redis for cache/session/queue (2026-05-30)
+- [x] Register `EnsureFrontendRequestsAreStateful` on `api` middleware group (2026-05-30)
+- [x] `routes/api.php` — `GET /api/v1/health` endpoint (2026-05-30)
+- [x] **✅ TEST:** `php artisan test --filter=HealthCheckTest` (2026-05-30)
 
 ### Step 1.3 — Auth + RBAC Migrations & Seeders
 Branch: `task/phase-1-step-1-3-auth-rbac-migrations`
@@ -173,6 +173,7 @@ Branch: `task/phase-1-step-1-6-cicd-pipeline`
 ## ✅ COMPLETED
 
 - Phase 1 / Step 1.1 — Repository & Docker Setup (2026-05-30)
+- Phase 1 / Step 1.2 — Laravel Base Configuration (2026-05-30)
 
 ---
 
@@ -274,5 +275,6 @@ git push origin main
 |------|-------------|---------------|------|
 | — | Planning complete, all docs generated | — | — |
 | 2026-05-30 | Phase 1 Step 1.1 Docker setup complete; Laravel 11, Next.js 14, Docker stack, health checks, and required tests green | task/phase-1-step-1-1-docker-setup | auto-pr pending |
+| 2026-05-30 | Phase 1 Step 1.2 Laravel base config complete; Sanctum, Permission, Horizon, CORS, health checks, and required tests green | task/phase-1-step-1-2-laravel-base-config | auto-pr pending |
 
 > Agent: add a row here at the end of every session.
