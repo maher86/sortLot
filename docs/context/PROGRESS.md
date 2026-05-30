@@ -35,7 +35,7 @@
 | **Task** | Packages & Items Migrations & Models |
 | **Branch pattern** | `task/phase-2-step-2-1-migrations-models` |
 | **PR target** | `develop` |
-| **Status** | Phase 1 CI green; continuing to Step 2.1 |
+| **Status** | ✅ Step 2.1 complete |
 | **Last updated** | 2026-05-30 |
 | **Blocked?** | No — auto-PR creation requires GitHub repo workflow permission or manual PR |
 
@@ -121,7 +121,7 @@ Branch: `task/phase-1-step-1-6-cicd-pipeline`
 > Full detail: `docs/phases/PHASE_2.md`  
 > Status: 🔓 Unlocked — Phase 1 local suite and GitHub backend/frontend CI passed
 
-- [ ] Step 2.1 — Migrations & Models
+- [x] Step 2.1 — Migrations & Models (2026-05-30)
 - [ ] Step 2.2 — Package API + Tests
 - [ ] Step 2.3 — Items API + Tests
 - [ ] Step 2.4 — Preferences API (Pricing Tiers, Item Types)
@@ -178,6 +178,7 @@ Branch: `task/phase-1-step-1-6-cicd-pipeline`
 - Phase 1 / Step 1.4 — Auth API Endpoints (2026-05-30)
 - Phase 1 / Step 1.5 — Next.js Auth (2026-05-30)
 - Phase 1 / Step 1.6 — CI/CD Pipeline Setup (2026-05-30)
+- Phase 2 / Step 2.1 — Packages & Items Migrations & Models (2026-05-30)
 
 ---
 
@@ -284,5 +285,6 @@ git push origin main
 | 2026-05-30 | Phase 1 Step 1.4 Auth API complete; login, logout, me, password update, rate limit, and required suites green | task/phase-1-step-1-4-auth-api | auto-pr pending |
 | 2026-05-30 | Phase 1 Step 1.5 Next.js auth complete; login shell, auth store, protected routes, sidebar gating, and required suites green | task/phase-1-step-1-5-nextjs-auth | auto-pr pending |
 | 2026-05-30 | Phase 1 Step 1.6 CI/CD pipeline complete; local suite green, GitHub backend/frontend CI green, auto-PR workflow blocked by repository workflow permission | task/phase-1-step-1-6-cicd-pipeline | manual PR required |
+| 2026-05-30 | Phase 2 Step 2.1 migrations and models complete; package/item schema, enum casts, seeders, SKU generation, and required suites green | task/phase-2-step-2-1-migrations-models | auto-pr pending |
 
 > Agent: add a row here at the end of every session.
