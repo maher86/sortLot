@@ -6,6 +6,7 @@ use App\Enums\InvoiceStatus;
 use App\Enums\InvoiceType;
 use App\Enums\ItemStatus;
 use App\Enums\VatType;
+use App\Jobs\GenerateInvoicePdfJob;
 use App\Models\Customer;
 use App\Models\Invoice;
 use App\Models\InvoiceLine;
@@ -106,8 +107,10 @@ class InvoiceService
 
         $invoice->forceFill([
             'pdf_path' => $path,
-            'pdf_generated_at' => now(),
+            'pdf_generated_at' => null,
         ])->save();
+
+        GenerateInvoicePdfJob::dispatch($invoice->id);
 
         return $path;
     }

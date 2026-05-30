@@ -11,7 +11,9 @@ use App\Services\InvoiceService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Storage;
 use InvalidArgumentException;
+use Symfony\Component\HttpFoundation\Response;
 
 class InvoiceController extends Controller
 {
@@ -149,6 +151,30 @@ class InvoiceController extends Controller
         $creditNote = $this->invoiceService->generateCreditNote($invoice);
 
         return InvoiceResource::make($creditNote)->response()->setStatusCode(201);
+    }
+
+    public function pdf(Invoice $invoice): JsonResponse|Response
+    {
+        $this->authorize('view', $invoice);
+
+        if (! $invoice->pdf_path || ! Storage::disk(config('filesystems.default'))->exists($invoice->pdf_path)) {
+            $this->invoiceService->generatePdf($invoice);
+            $invoice = $invoice->fresh();
+        }
+
+        if (! $invoice->pdf_path || ! Storage::disk(config('filesystems.default'))->exists($invoice->pdf_path)) {
+            return response()->json([
+                'data' => [
+                    'queued' => true,
+                    'path' => $invoice->pdf_path,
+                ],
+            ], 202);
+        }
+
+        return response(Storage::disk(config('filesystems.default'))->get($invoice->pdf_path), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="'.$invoice->number.'.pdf"',
+        ]);
     }
 
     private function index(Request $request, InvoiceType $type): AnonymousResourceCollection
