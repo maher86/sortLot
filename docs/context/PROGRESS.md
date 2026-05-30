@@ -31,11 +31,11 @@
 | Field | Value |
 |-------|-------|
 | **Phase** | 1 |
-| **Step** | 1.4 |
-| **Task** | Auth API Endpoints |
-| **Branch pattern** | `task/phase-1-step-1-4-auth-api` |
+| **Step** | 1.5 |
+| **Task** | Next.js Auth |
+| **Branch pattern** | `task/phase-1-step-1-5-nextjs-auth` |
 | **PR target** | `develop` |
-| **Status** | ✅ Step 1.4 complete |
+| **Status** | ✅ Step 1.5 complete |
 | **Last updated** | 2026-05-30 |
 | **Blocked?** | No |
 
@@ -94,17 +94,17 @@ Branch: `task/phase-1-step-1-4-auth-api`
 
 ### Step 1.5 — Next.js Auth
 Branch: `task/phase-1-step-1-5-nextjs-auth`
-- [ ] `npm install @tanstack/react-query axios zustand react-hook-form zod @hookform/resolvers`
-- [ ] `npx shadcn@latest init` + add: button, input, card, dialog, dropdown-menu, select, table, badge, skeleton, sonner
-- [ ] `lib/api.ts` — Axios instance, withCredentials, auto CSRF fetch
-- [ ] `lib/stores/auth.ts` — Zustand: user, permissions, login(), logout()
-- [ ] `middleware.ts` — protect `/(dashboard)/*`, redirect `/login` if authed
-- [ ] `app/(auth)/login/page.tsx`
-- [ ] `app/(dashboard)/layout.tsx` — sidebar + topbar shell
-- [ ] `components/sidebar/Sidebar.tsx` — nav items with permission gating
-- [ ] `components/auth/Gate.tsx` — renders children only if user has permission
-- [ ] `app/(dashboard)/dashboard/page.tsx` — placeholder
-- [ ] **✅ TEST:** `npx playwright test --grep="auth"`
+- [x] `npm install @tanstack/react-query axios zustand react-hook-form zod @hookform/resolvers` (2026-05-30)
+- [x] `npx shadcn@latest init` + add: button, input, card, dialog, dropdown-menu, select, table, badge, skeleton, sonner (2026-05-30)
+- [x] `lib/api.ts` — Axios instance, withCredentials, auto CSRF fetch (2026-05-30)
+- [x] `lib/stores/auth.ts` — Zustand: user, permissions, login(), logout() (2026-05-30)
+- [x] `middleware.ts` — protect `/(dashboard)/*`, redirect `/login` if authed (2026-05-30)
+- [x] `app/(auth)/login/page.tsx` (2026-05-30)
+- [x] `app/(dashboard)/layout.tsx` — sidebar + topbar shell (2026-05-30)
+- [x] `components/sidebar/Sidebar.tsx` — nav items with permission gating (2026-05-30)
+- [x] `components/auth/Gate.tsx` — renders children only if user has permission (2026-05-30)
+- [x] `app/(dashboard)/dashboard/page.tsx` — placeholder (2026-05-30)
+- [x] **✅ TEST:** `npx playwright test --grep="auth"` (2026-05-30)
 
 ### Step 1.6 — CI/CD Pipeline Setup
 Branch: `task/phase-1-step-1-6-cicd-pipeline`
@@ -176,6 +176,7 @@ Branch: `task/phase-1-step-1-6-cicd-pipeline`
 - Phase 1 / Step 1.2 — Laravel Base Configuration (2026-05-30)
 - Phase 1 / Step 1.3 — Auth + RBAC Migrations & Seeders (2026-05-30)
 - Phase 1 / Step 1.4 — Auth API Endpoints (2026-05-30)
+- Phase 1 / Step 1.5 — Next.js Auth (2026-05-30)
 
 ---
 
@@ -280,5 +281,6 @@ git push origin main
 | 2026-05-30 | Phase 1 Step 1.2 Laravel base config complete; Sanctum, Permission, Horizon, CORS, health checks, and required tests green | task/phase-1-step-1-2-laravel-base-config | auto-pr pending |
 | 2026-05-30 | Phase 1 Step 1.3 auth/RBAC migrations and seeders complete; RoleSeederTest and required suites green | task/phase-1-step-1-3-auth-rbac-migrations | auto-pr pending |
 | 2026-05-30 | Phase 1 Step 1.4 Auth API complete; login, logout, me, password update, rate limit, and required suites green | task/phase-1-step-1-4-auth-api | auto-pr pending |
+| 2026-05-30 | Phase 1 Step 1.5 Next.js auth complete; login shell, auth store, protected routes, sidebar gating, and required suites green | task/phase-1-step-1-5-nextjs-auth | auto-pr pending |
 
 > Agent: add a row here at the end of every session.
