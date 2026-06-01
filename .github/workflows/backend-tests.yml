@@ -1,19 +1,21 @@
 name: Backend Tests
 
 on:
+  workflow_call:
   push:
     branches: [main, develop]
     paths:
       - 'backend/**'
-      - '.github/workflows/backend-tests.yml'
+      - '.github/workflows/**'
   pull_request:
     branches: [main, develop]
     paths:
       - 'backend/**'
+      - '.github/workflows/**'
 
 jobs:
   test:
-    name: PHPUnit — PHP ${{ matrix.php }}
+    name: PHPUnit - PHP ${{ matrix.php }}
     runs-on: ubuntu-latest
 
     strategy:
@@ -87,6 +89,9 @@ jobs:
           echo "DB_PASSWORD=sortlot_secret" >> .env
           echo "REDIS_HOST=127.0.0.1" >> .env
           echo "REDIS_PORT=6379" >> .env
+
+      - name: Grant parallel test database permissions
+        run: mysql -h 127.0.0.1 -uroot -proot_secret -e "GRANT ALL PRIVILEGES ON \`sortlot_test\_%\`.* TO 'sortlot'@'%'; FLUSH PRIVILEGES;"
 
       - name: Run migrations
         working-directory: backend
