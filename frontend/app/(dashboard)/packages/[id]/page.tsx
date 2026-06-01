@@ -2,7 +2,7 @@
 
 import { useParams } from "next/navigation";
 import { useMemo, useState } from "react";
-import { Boxes, Plus, Play } from "lucide-react";
+import { Boxes, Pencil, Plus, Play, Save, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { StatusBadge } from "@/components/packages/StatusBadge";
@@ -14,13 +14,16 @@ import {
   packageStatuses,
   useBulkCreateItems,
   useChangePackageStatus,
+  useDeletePackage,
   usePackage,
   usePackageItems,
   usePreferenceOptions,
+  useUpdatePackage,
 } from "@/lib/packages";
 
 const seasons = ["summer", "winter", "spring", "general"];
 const genders = ["man", "woman", "girl", "boy"];
+const mutableStatuses = ["in_transit", "at_port", "in_customs", "in_warehouse"];
 
 export default function PackageDetailPage() {
   const params = useParams<{ id: string }>();
@@ -30,7 +33,18 @@ export default function PackageDetailPage() {
   const { data: options } = usePreferenceOptions();
   const changeStatus = useChangePackageStatus(packageId);
   const bulkCreate = useBulkCreateItems(packageId);
+  const updatePackage = useUpdatePackage(packageId);
+  const deletePackage = useDeletePackage();
   const [isAddOpen, setIsAddOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [editForm, setEditForm] = useState({
+    reference: "",
+    origin_country: "",
+    destination_country: "",
+    weight_kg: "",
+    number_of_bags: "",
+    notes: "",
+  });
   const [itemForm, setItemForm] = useState({
     item_type_id: "",
     pricing_tier_id: "",
@@ -40,7 +54,9 @@ export default function PackageDetailPage() {
     unit_price_fils: "1000",
   });
 
-  const canStartSorting = sortlotPackage?.status === "in_warehouse";
+  const canMutateDetails = sortlotPackage ? mutableStatuses.includes(sortlotPackage.status) : false;
+  const canStartSorting = sortlotPackage ? mutableStatuses.includes(sortlotPackage.status) : false;
+  const canDelete = canMutateDetails && items.length === 0;
   const timeline = useMemo(
     () =>
       packageStatuses.map((status) => ({
@@ -52,8 +68,61 @@ export default function PackageDetailPage() {
   );
 
   async function startSorting() {
-    await changeStatus.mutateAsync("sorting");
-    toast.success("Sorting started");
+    try {
+      await changeStatus.mutateAsync("sorting");
+      toast.success("Sorting started");
+    } catch {
+      toast.error("Sorting could not be started");
+    }
+  }
+
+  function openEdit() {
+    if (!sortlotPackage) {
+      return;
+    }
+
+    setEditForm({
+      reference: sortlotPackage.reference,
+      origin_country: sortlotPackage.origin_country,
+      destination_country: sortlotPackage.destination_country,
+      weight_kg: sortlotPackage.weight_kg ?? "",
+      number_of_bags: sortlotPackage.number_of_bags?.toString() ?? "",
+      notes: sortlotPackage.notes ?? "",
+    });
+    setIsEditOpen(true);
+  }
+
+  async function savePackage(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    try {
+      await updatePackage.mutateAsync({
+        reference: editForm.reference,
+        origin_country: editForm.origin_country,
+        destination_country: editForm.destination_country,
+        weight_kg: editForm.weight_kg || null,
+        number_of_bags: editForm.number_of_bags ? Number(editForm.number_of_bags) : null,
+        notes: editForm.notes || null,
+      });
+      setIsEditOpen(false);
+      toast.success("Package updated");
+    } catch {
+      toast.error("Package can only be updated before sorting starts");
+    }
+  }
+
+  async function removePackage() {
+    if (!sortlotPackage || !window.confirm(`Delete package ${sortlotPackage.reference}?`)) {
+      return;
+    }
+
+    try {
+      await deletePackage.mutateAsync(sortlotPackage.id);
+      toast.success("Package deleted");
+      window.location.assign("/packages");
+    } catch {
+      toast.error("Package can only be deleted before sorting starts and before items are added");
+    }
   }
 
   async function addItem(event: React.FormEvent<HTMLFormElement>) {
@@ -89,6 +158,14 @@ export default function PackageDetailPage() {
           </p>
         </div>
         <div className="flex gap-2">
+          <Button disabled={!canMutateDetails || updatePackage.isPending} onClick={openEdit} variant="outline">
+            <Pencil className="h-4 w-4" />
+            Edit
+          </Button>
+          <Button disabled={!canDelete || deletePackage.isPending} onClick={removePackage} variant="outline">
+            <Trash2 className="h-4 w-4" />
+            Delete
+          </Button>
           <Button disabled={!canStartSorting || changeStatus.isPending} onClick={startSorting} variant="outline">
             <Play className="h-4 w-4" />
             Start sorting
@@ -178,6 +255,72 @@ export default function PackageDetailPage() {
           </TableBody>
         </Table>
       </div>
+
+      {isEditOpen ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 p-4">
+          <form className="w-full max-w-2xl rounded-md bg-background p-4 shadow-lg" onSubmit={savePackage}>
+            <h2 className="text-lg font-semibold">Edit package</h2>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <label className="space-y-1 text-sm font-medium">
+                Reference
+                <Input
+                  onChange={(event) => setEditForm((current) => ({ ...current, reference: event.target.value }))}
+                  required
+                  value={editForm.reference}
+                />
+              </label>
+              <label className="space-y-1 text-sm font-medium">
+                Origin country
+                <Input
+                  onChange={(event) => setEditForm((current) => ({ ...current, origin_country: event.target.value }))}
+                  required
+                  value={editForm.origin_country}
+                />
+              </label>
+              <label className="space-y-1 text-sm font-medium">
+                Destination country
+                <Input
+                  onChange={(event) => setEditForm((current) => ({ ...current, destination_country: event.target.value }))}
+                  value={editForm.destination_country}
+                />
+              </label>
+              <label className="space-y-1 text-sm font-medium">
+                Weight kg
+                <Input
+                  onChange={(event) => setEditForm((current) => ({ ...current, weight_kg: event.target.value }))}
+                  type="number"
+                  value={editForm.weight_kg}
+                />
+              </label>
+              <label className="space-y-1 text-sm font-medium">
+                Bags
+                <Input
+                  onChange={(event) => setEditForm((current) => ({ ...current, number_of_bags: event.target.value }))}
+                  type="number"
+                  value={editForm.number_of_bags}
+                />
+              </label>
+              <label className="space-y-1 text-sm font-medium sm:col-span-2">
+                Notes
+                <textarea
+                  className="min-h-24 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  onChange={(event) => setEditForm((current) => ({ ...current, notes: event.target.value }))}
+                  value={editForm.notes}
+                />
+              </label>
+            </div>
+            <div className="mt-4 flex justify-end gap-2">
+              <Button onClick={() => setIsEditOpen(false)} type="button" variant="outline">
+                Cancel
+              </Button>
+              <Button disabled={updatePackage.isPending} type="submit">
+                <Save className="h-4 w-4" />
+                Save
+              </Button>
+            </div>
+          </form>
+        </div>
+      ) : null}
 
       {isAddOpen ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 p-4">

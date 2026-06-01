@@ -62,6 +62,10 @@ class PackageController extends Controller
     {
         $this->authorize('update', $package);
 
+        if (! $this->canMutatePackageDetails($package)) {
+            abort(409, 'Package details can only be updated before sorting starts.');
+        }
+
         $package->update($request->validated());
 
         return PackageResource::make($package->fresh());
@@ -70,6 +74,13 @@ class PackageController extends Controller
     public function destroy(Package $package): JsonResponse
     {
         $this->authorize('delete', $package);
+
+        if (! $this->canMutatePackageDetails($package) || $package->items()->exists()) {
+            return response()->json([
+                'message' => 'Package can only be deleted before sorting starts and before items are added.',
+                'code' => 'PACKAGE_DELETE_NOT_ALLOWED',
+            ], 409);
+        }
 
         $package->delete();
 
@@ -126,5 +137,15 @@ class PackageController extends Controller
                 'status' => $item->status->value,
             ])->values(),
         ], 201);
+    }
+
+    private function canMutatePackageDetails(Package $package): bool
+    {
+        return in_array($package->status, [
+            PackageStatus::InTransit,
+            PackageStatus::AtPort,
+            PackageStatus::InCustoms,
+            PackageStatus::InWarehouse,
+        ], true);
     }
 }

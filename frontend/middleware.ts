@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 export function middleware(request: NextRequest) {
   const isAuthed = request.cookies.get("sortlot_auth")?.value === "1";
   const isLogin = request.nextUrl.pathname === "/login";
-  const isProtected = ["/dashboard", "/packages", "/items", "/customers", "/invoices", "/preferences"].some((path) =>
+  const isProtected = ["/dashboard", "/packages", "/items", "/customers", "/suppliers", "/invoices", "/preferences"].some((path) =>
     request.nextUrl.pathname.startsWith(path),
   );
 
@@ -19,5 +19,14 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/login", "/dashboard/:path*", "/packages/:path*", "/items/:path*", "/customers/:path*", "/invoices/:path*", "/preferences/:path*"],
+  matcher: [
+    "/login",
+    "/dashboard/:path*",
+    "/packages/:path*",
+    "/items/:path*",
+    "/customers/:path*",
+    "/suppliers/:path*",
+    "/invoices/:path*",
+    "/preferences/:path*",
+  ],
 };
