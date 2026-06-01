@@ -30,12 +30,12 @@
 
 | Field | Value |
 |-------|-------|
-| **Phase** | 3 |
-| **Step** | 3.5 |
-| **Task** | Frontend: Customers & Suppliers |
-| **Branch pattern** | `task/phase-3-step-3-5-frontend-customers-suppliers` |
+| **Phase** | 4 |
+| **Step** | 4.1 |
+| **Task** | Backend: All Dashboard Endpoints (cached) |
+| **Branch pattern** | `task/phase-4-step-4-1-dashboard-endpoints` |
 | **PR target** | `develop` |
-| **Status** | ✅ Step 3.5 complete |
+| **Status** | ✅ Phase 3 complete; ready for Phase 4 |
 | **Last updated** | 2026-06-01 |
 | **Blocked?** | No — auto-PR creation requires GitHub repo workflow permission or manual PR |
 
@@ -140,13 +140,13 @@ Branch: `task/phase-1-step-1-6-cicd-pipeline`
 - [x] Step 3.3 — Invoice PDF Generation (2026-05-31)
 - [x] Step 3.4 — Overdue Scheduler (2026-05-31)
 - [x] Step 3.5 — Frontend: Customers & Suppliers (2026-06-01)
-- [ ] Step 3.6 — Frontend: Invoicing Module
+- [x] Step 3.6 — Frontend: Invoicing Module (2026-06-01)
 
 ---
 
 ## 📋 PHASE 4 — Dashboard & Charts
 > Full detail: `docs/phases/PHASE_4.md`  
-> Status: 🔒 Locked until Phase 3 CI gate passes
+> Status: 🔓 Unlocked — Phase 3 local suite passed
 
 - [ ] Step 4.1 — Backend: All Dashboard Endpoints (cached)
 - [ ] Step 4.2 — Backend: Reports
@@ -190,6 +190,7 @@ Branch: `task/phase-1-step-1-6-cicd-pipeline`
 - Phase 3 / Step 3.3 — Invoice PDF Generation (2026-05-31)
 - Phase 3 / Step 3.4 — Overdue Scheduler (2026-05-31)
 - Phase 3 / Step 3.5 — Frontend: Customers & Suppliers (2026-06-01)
+- Phase 3 / Step 3.6 — Frontend: Invoicing Module (2026-06-01)
 
 ---
 
@@ -308,5 +309,6 @@ git push origin main
 | 2026-05-31 | Phase 3 Step 3.3 invoice PDF generation complete; DomPDF installed, invoice Blade template added, queued PDF job stores to S3/MinIO disk, PDF streaming endpoint added, Playwright stabilized, and required suites green | task/phase-3-step-3-3-invoice-pdf | auto-pr pending |
 | 2026-05-31 | Phase 3 Step 3.4 overdue scheduler complete; daily command marks overdue pending/partial invoices, database notifications are created for invoice creator and accountants, schedule registration tested, and required suites green | task/phase-3-step-3-4-overdue-scheduler | auto-pr pending |
 | 2026-06-01 | Phase 3 Step 3.5 frontend customers and suppliers complete; customer/supplier list, create, detail/edit, statements, credit indicators, quick-add modals, package edit/delete/start sorting fixes, and required suites green | task/phase-3-step-3-5-frontend-customers-suppliers | auto-pr pending |
+| 2026-06-01 | Phase 3 Step 3.6 frontend invoicing module complete; sales/purchase order lists, filters, export, create/detail flows, payment recording, credit note/PDF actions, status badges, hooks, and full required suites green | task/phase-3-step-3-6-frontend-invoicing-module | auto-pr pending |
 
 > Agent: add a row here at the end of every session.
