@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Boxes, LayoutDashboard, Package, Receipt, Settings, Users } from "lucide-react";
+import { Boxes, LayoutDashboard, Package, Receipt, Settings, Truck, Users } from "lucide-react";
 
 import { Gate } from "@/components/auth/Gate";
 
@@ -10,6 +10,7 @@ const navItems = [
   { href: "/packages", label: "Packages", icon: Package, permission: "packages.view" },
   { href: "/items", label: "Items", icon: Boxes, permission: "items.view" },
   { href: "/customers", label: "Customers", icon: Users, permission: "customers.view" },
+  { href: "/suppliers", label: "Suppliers", icon: Truck, permission: "suppliers.view" },
   { href: "/invoices", label: "Invoices", icon: Receipt, permission: "sales_orders.view" },
   { href: "/preferences", label: "Preferences", icon: Settings, permission: "preferences.view" },
 ];

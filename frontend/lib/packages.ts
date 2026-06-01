@@ -154,6 +154,35 @@ export function useCreatePackage() {
   });
 }
 
+export function useUpdatePackage(packageId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payload: Record<string, unknown>) => {
+      const response = await api.patch<{ data: SortLotPackage }>(`/packages/${packageId}`, payload);
+
+      return response.data.data;
+    },
+    onSuccess: (updated) => {
+      queryClient.setQueryData(["packages", packageId], updated);
+      queryClient.invalidateQueries({ queryKey: ["packages"] });
+    },
+  });
+}
+
+export function useDeletePackage() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (packageId: string) => {
+      await api.delete(`/packages/${packageId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["packages"] });
+    },
+  });
+}
+
 export function useChangePackageStatus(packageId: string) {
   const queryClient = useQueryClient();
 
