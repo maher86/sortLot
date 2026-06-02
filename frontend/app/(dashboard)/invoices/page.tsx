@@ -94,15 +94,17 @@ export default function InvoicesPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Date</TableHead>
+                <TableHead>Invoice</TableHead>
                 <TableHead>Method</TableHead>
                 <TableHead>Reference</TableHead>
                 <TableHead>Amount</TableHead>
+                <TableHead className="text-right">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {payments.data?.length === 0 ? (
                 <TableRow>
-                  <TableCell className="py-8 text-center text-muted-foreground" colSpan={4}>
+                  <TableCell className="py-8 text-center text-muted-foreground" colSpan={6}>
                     No payments found
                   </TableCell>
                 </TableRow>
@@ -110,9 +112,23 @@ export default function InvoicesPage() {
               {payments.data?.map((payment) => (
                 <TableRow key={payment.id}>
                   <TableCell>{payment.payment_date}</TableCell>
+                  <TableCell>
+                    {payment.invoice ? (
+                      <Link className="text-primary hover:underline" href={`${invoicePath(payment.invoice.type === "purchase_order" ? "purchase" : payment.invoice.type === "credit_note" ? "credit" : "sales")}/${payment.invoice.id}`}>
+                        {payment.invoice.number}
+                      </Link>
+                    ) : (
+                      payment.invoice_id
+                    )}
+                  </TableCell>
                   <TableCell>{formatStatus(payment.payment_method)}</TableCell>
                   <TableCell>{payment.reference ?? "-"}</TableCell>
                   <TableCell>{formatFils(payment.amount_fils)}</TableCell>
+                  <TableCell className="text-right">
+                    <Link className={buttonVariants({ size: "sm", variant: "outline" })} href={`/invoices/payments/${payment.id}`}>
+                      Open
+                    </Link>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

@@ -32,6 +32,7 @@ export type Payment = {
   reference: string | null;
   bank_name: string | null;
   notes: string | null;
+  invoice?: Invoice;
   created_at: string;
 };
 
@@ -225,6 +226,17 @@ export function useCreateCreditNote(invoiceId: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["invoices", "sales"] });
       queryClient.invalidateQueries({ queryKey: ["invoices", "credit"] });
+    },
+  });
+}
+
+export function usePayment(id: string) {
+  return useQuery({
+    queryKey: ["payments", "detail", id],
+    queryFn: async () => {
+      const response = await api.get<{ data: Payment }>(`/payments/${id}`);
+
+      return response.data.data;
     },
   });
 }
