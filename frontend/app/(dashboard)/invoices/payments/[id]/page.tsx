@@ -38,24 +38,23 @@ export default function PaymentDetailPage() {
   const invoice = currentPayment.invoice;
   const party = invoice?.customer ?? invoice?.supplier;
 
-  function exportPdf() {
-    const html = `
-      <html><head><title>Payment ${currentPayment.id}</title></head>
-      <body style="font-family: Arial, sans-serif; padding: 32px;">
-        <h1>Payment Receipt</h1>
-        <p><strong>Payment ID:</strong> ${currentPayment.id}</p>
-        <p><strong>Date:</strong> ${currentPayment.payment_date}</p>
-        <p><strong>Invoice:</strong> ${invoice?.number ?? currentPayment.invoice_id}</p>
-        <p><strong>Party:</strong> ${party?.name ?? "-"}</p>
-        <p><strong>Method:</strong> ${formatStatus(currentPayment.payment_method)}</p>
-        <p><strong>Reference:</strong> ${currentPayment.reference ?? "-"}</p>
-        <p><strong>Amount:</strong> ${formatFils(currentPayment.amount_fils)}</p>
-      </body></html>
-    `;
-    const popup = window.open("", "_blank", "noopener,noreferrer");
-    popup?.document.write(html);
-    popup?.document.close();
-    popup?.print();
+  async function exportPdf() {
+    const response = await api.get(`/payments/${currentPayment.id}/pdf`, { responseType: "blob" });
+    const contentType = String(response.headers["content-type"] ?? "");
+
+    if (!contentType.includes("application/pdf")) {
+      toast.error("Payment PDF could not be generated.");
+      return;
+    }
+
+    const url = window.URL.createObjectURL(response.data);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `payment-receipt-${currentPayment.reference ?? currentPayment.id}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
   }
 
   async function sendEmail() {

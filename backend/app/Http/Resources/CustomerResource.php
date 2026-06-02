@@ -23,7 +23,7 @@ class CustomerResource extends JsonResource
             'country' => $this->country,
             'emirate' => $this->emirate,
             'address' => $this->address,
-            'vat_type' => $this->vat_type->value,
+            'vat_type' => $this->vat_type?->value,
             'trn' => $this->trn,
             'credit_limit_fils' => $this->credit_limit_fils,
             'payment_terms_days' => $this->payment_terms_days,

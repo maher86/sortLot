@@ -84,6 +84,7 @@ Route::middleware('auth:sanctum')->group(function (): void {
 
     Route::get('/invoices/{invoice}/pdf', [InvoiceController::class, 'pdf']);
 
+    Route::get('/payments/{payment}/pdf', [PaymentController::class, 'pdf']);
     Route::post('/payments/{payment}/send-email', [PaymentController::class, 'sendEmail']);
     Route::apiResource('payments', PaymentController::class)->only(['index', 'store', 'show', 'destroy']);
 

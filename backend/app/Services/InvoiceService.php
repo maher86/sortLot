@@ -158,40 +158,71 @@ class InvoiceService
 
     public function generateCreditNote(Invoice $original, ?int $amountFils = null): Invoice
     {
-        $original->load('lines');
-        $lines = $amountFils
-            ? [[
-                'description' => "Credit adjustment for {$original->number}",
-                'quantity' => 1,
-                'unit_price_fils' => $amountFils,
-                'discount_pct' => 0,
-                'sort_order' => 0,
-            ]]
-            : $original->lines->map(fn (InvoiceLine $line): array => [
-                'item_id' => $line->item_id,
-                'description' => "Credit: {$line->description}",
-                'quantity' => $line->quantity,
-                'unit_price_fils' => $line->unit_price_fils,
-                'discount_pct' => $line->discount_pct,
-                'sort_order' => $line->sort_order,
-            ])->all();
+        return DB::transaction(function () use ($original, $amountFils): Invoice {
+            $original = Invoice::query()
+                ->lockForUpdate()
+                ->with('lines')
+                ->findOrFail($original->id);
 
-        return $this->create([
-            'type' => InvoiceType::CreditNote,
-            'reference' => "Credit for {$original->number}",
-            'customer_id' => $original->customer_id,
-            'supplier_id' => $original->supplier_id,
-            'related_invoice_id' => $original->id,
-            'issue_date' => now()->toDateString(),
-            'due_date' => now()->toDateString(),
-            'discount_fils' => 0,
-            'discount_pct' => 0,
-            'currency' => $original->currency,
-            'exchange_rate' => $original->exchange_rate,
-            'notes' => "Credit note for invoice {$original->number}",
-            'created_by' => $original->created_by,
-            'lines' => $lines,
-        ]);
+            if ($original->type !== InvoiceType::SalesOrder) {
+                throw new InvalidArgumentException('Credit notes can only be created for sales invoices.');
+            }
+
+            $creditedFils = (int) Invoice::query()
+                ->where('type', InvoiceType::CreditNote->value)
+                ->where('related_invoice_id', $original->id)
+                ->where('status', '!=', InvoiceStatus::Cancelled->value)
+                ->sum('total_fils');
+            $remainingFils = max(0, $original->total_fils - $creditedFils);
+
+            if ($remainingFils <= 0) {
+                throw new InvalidArgumentException('This invoice is already fully credited.');
+            }
+
+            if ($amountFils === null && $creditedFils > 0) {
+                throw new InvalidArgumentException('This invoice already has a credit note. Enter a remaining credit amount instead of creating another full credit note.');
+            }
+
+            $lines = $amountFils
+                ? [[
+                    'description' => "Credit adjustment for {$original->number}",
+                    'quantity' => 1,
+                    'unit_price_fils' => $amountFils,
+                    'discount_pct' => 0,
+                    'sort_order' => 0,
+                ]]
+                : $original->lines->map(fn (InvoiceLine $line): array => [
+                    'item_id' => $line->item_id,
+                    'description' => "Credit: {$line->description}",
+                    'quantity' => $line->quantity,
+                    'unit_price_fils' => $line->unit_price_fils,
+                    'discount_pct' => $line->discount_pct,
+                    'sort_order' => $line->sort_order,
+                ])->all();
+
+            $creditNote = $this->create([
+                'type' => InvoiceType::CreditNote,
+                'reference' => "Credit for {$original->number}",
+                'customer_id' => $original->customer_id,
+                'supplier_id' => $original->supplier_id,
+                'related_invoice_id' => $original->id,
+                'issue_date' => now()->toDateString(),
+                'due_date' => now()->toDateString(),
+                'discount_fils' => 0,
+                'discount_pct' => 0,
+                'currency' => $original->currency,
+                'exchange_rate' => $original->exchange_rate,
+                'notes' => "Credit note for invoice {$original->number}",
+                'created_by' => $original->created_by,
+                'lines' => $lines,
+            ]);
+
+            if ($creditNote->total_fils > $remainingFils) {
+                throw new InvalidArgumentException('Credit amount exceeds the remaining invoice amount.');
+            }
+
+            return $creditNote;
+        });
     }
 
     /**
