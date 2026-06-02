@@ -26,7 +26,7 @@ api.interceptors.request.use(async (config) => {
   const method = config.method?.toLowerCase();
   const mutates = method && ["post", "put", "patch", "delete"].includes(method);
 
-  if (mutates && typeof window !== "undefined" && !document.cookie.includes("XSRF-TOKEN")) {
+  if (mutates && typeof window !== "undefined") {
     await axios.get(`${appUrl}/sanctum/csrf-cookie`, { withCredentials: true });
   }
 
