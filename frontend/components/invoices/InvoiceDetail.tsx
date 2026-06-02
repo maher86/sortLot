@@ -120,15 +120,25 @@ export function InvoiceDetail({ id, kind }: { id: string; kind: InvoiceKind }) {
 
   async function creditNote() {
     const amount = window.prompt("Credit amount in AED. Leave empty for full invoice credit.", "");
-    const amountFils = amount ? Math.round(Number(amount) * 100) : null;
+
+    if (amount === null) {
+      return;
+    }
+
+    const normalizedAmount = amount.trim();
+    const amountFils = normalizedAmount ? Math.round(Number(normalizedAmount) * 100) : null;
 
     if (amountFils !== null && (!Number.isFinite(amountFils) || amountFils <= 0)) {
       toast.error("Enter a valid credit amount");
       return;
     }
 
-    const created = await createCreditNote.mutateAsync(amountFils === null ? {} : { amount_fils: amountFils });
-    toast.success(`Credit note ${created.number} created`);
+    try {
+      const created = await createCreditNote.mutateAsync(amountFils === null ? {} : { amount_fils: amountFils });
+      toast.success(`Credit note ${created.number} created`);
+    } catch {
+      toast.error("Credit note could not be created");
+    }
   }
 
   return (

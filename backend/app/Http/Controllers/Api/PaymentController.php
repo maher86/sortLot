@@ -6,10 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\PaymentRequest;
 use App\Http\Resources\PaymentResource;
 use App\Models\Payment;
+use App\Models\Preference;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Mail;
+use Symfony\Component\HttpFoundation\Response;
 
 class PaymentController extends Controller
 {
@@ -46,6 +49,30 @@ class PaymentController extends Controller
         $this->authorize('view', $payment);
 
         return PaymentResource::make($payment->load(['invoice.customer', 'invoice.supplier']));
+    }
+
+    public function pdf(Payment $payment): Response
+    {
+        $this->authorize('view', $payment);
+
+        $payment->load(['invoice.customer', 'invoice.supplier']);
+        $invoice = $payment->invoice;
+        $party = $invoice?->customer ?? $invoice?->supplier;
+        $company = Preference::query()->pluck('value', 'key');
+
+        $pdf = Pdf::loadView('pdf.payment-receipt', [
+            'payment' => $payment,
+            'invoice' => $invoice,
+            'party' => $party,
+            'company' => $company,
+        ])->setPaper('a4');
+
+        $filename = 'payment-receipt-'.$payment->id.'.pdf';
+
+        return response($pdf->output(), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="'.$filename.'"',
+        ]);
     }
 
     public function sendEmail(Request $request, Payment $payment): PaymentResource|JsonResponse

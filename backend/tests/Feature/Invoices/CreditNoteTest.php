@@ -31,4 +31,23 @@ class CreditNoteTest extends TestCase
             ->assertJsonPath('data.related_invoice_id', $invoiceId)
             ->assertJsonPath('data.lines.0.description', 'Credit: Credit source');
     }
+
+    public function test_invoice_cannot_be_fully_credited_more_than_once(): void
+    {
+        $this->seed();
+        Sanctum::actingAs(User::where('email', 'admin@sortlot.local')->firstOrFail());
+        $customer = Customer::query()->create(['name' => 'Duplicate Credit Customer']);
+
+        $invoiceId = $this->postJson('/api/v1/sales-orders', [
+            'customer_id' => $customer->id,
+            'issue_date' => now()->toDateString(),
+            'lines' => [['description' => 'Credit source', 'quantity' => 1, 'unit_price_fils' => 10000]],
+        ])->assertCreated()->json('data.id');
+
+        $this->postJson("/api/v1/sales-orders/{$invoiceId}/credit-note")->assertCreated();
+
+        $this->postJson("/api/v1/sales-orders/{$invoiceId}/credit-note")
+            ->assertConflict()
+            ->assertJsonPath('code', 'CREDIT_NOTE_FAILED');
+    }
 }

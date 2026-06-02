@@ -159,7 +159,14 @@ class InvoiceController extends Controller
             'amount_fils' => ['nullable', 'integer', 'min:1'],
         ]);
 
-        $creditNote = $this->invoiceService->generateCreditNote($invoice, $validated['amount_fils'] ?? null);
+        try {
+            $creditNote = $this->invoiceService->generateCreditNote($invoice, $validated['amount_fils'] ?? null);
+        } catch (InvalidArgumentException $exception) {
+            return response()->json([
+                'message' => $exception->getMessage(),
+                'code' => 'CREDIT_NOTE_FAILED',
+            ], 409);
+        }
 
         return InvoiceResource::make($creditNote)->response()->setStatusCode(201);
     }

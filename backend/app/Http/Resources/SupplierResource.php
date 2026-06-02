@@ -22,7 +22,7 @@ class SupplierResource extends JsonResource
             'phone' => $this->phone,
             'country' => $this->country,
             'address' => $this->address,
-            'vat_type' => $this->vat_type->value,
+            'vat_type' => $this->vat_type?->value,
             'trn' => $this->trn,
             'bank_name' => $this->bank_name,
             'bank_iban' => $this->bank_iban,
