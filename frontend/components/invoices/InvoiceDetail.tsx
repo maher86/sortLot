@@ -81,12 +81,33 @@ export function InvoiceDetail({ id, kind }: { id: string; kind: InvoiceKind }) {
   }
 
   async function downloadPdf() {
-    window.open(`http://localhost/api/v1${invoiceEndpoint(kind)}/${id}/pdf`, "_blank", "noopener,noreferrer");
+    const currentInvoice = invoice;
+    if (!currentInvoice) {
+      return;
+    }
+
+    const response = await api.get(`${invoiceEndpoint(kind)}/${id}/pdf`, { responseType: "blob" });
+    const contentType = String(response.headers["content-type"] ?? "");
+
+    if (!contentType.includes("application/pdf")) {
+      toast.info("PDF generation queued. Try download again in a moment.");
+      return;
+    }
+
+    const url = window.URL.createObjectURL(response.data);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${currentInvoice.number}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
   }
 
   async function sendEmail() {
-    await api.get(`${invoiceEndpoint(kind)}/${id}/pdf`);
-    toast.success("PDF generation requested");
+    await api.post(`${invoiceEndpoint(kind)}/${id}/send-email`);
+    await refetch();
+    toast.success("Invoice email marked as sent");
   }
 
   async function creditNote() {

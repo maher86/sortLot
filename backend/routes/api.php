@@ -65,6 +65,7 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::patch('/sales-orders/{invoice}/cancel', [InvoiceController::class, 'cancel']);
     Route::post('/sales-orders/{invoice}/credit-note', [InvoiceController::class, 'creditNote']);
     Route::get('/sales-orders/{invoice}/pdf', [InvoiceController::class, 'pdf']);
+    Route::post('/sales-orders/{invoice}/send-email', [InvoiceController::class, 'sendEmail']);
 
     Route::get('/purchase-orders', [InvoiceController::class, 'purchaseOrders']);
     Route::post('/purchase-orders', [InvoiceController::class, 'storePurchaseOrder']);
@@ -74,6 +75,7 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::patch('/purchase-orders/{invoice}/confirm', [InvoiceController::class, 'confirm']);
     Route::patch('/purchase-orders/{invoice}/cancel', [InvoiceController::class, 'cancel']);
     Route::get('/purchase-orders/{invoice}/pdf', [InvoiceController::class, 'pdf']);
+    Route::post('/purchase-orders/{invoice}/send-email', [InvoiceController::class, 'sendEmail']);
 
     Route::get('/invoices/{invoice}/pdf', [InvoiceController::class, 'pdf']);
 

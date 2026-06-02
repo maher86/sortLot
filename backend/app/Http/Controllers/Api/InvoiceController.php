@@ -177,6 +177,19 @@ class InvoiceController extends Controller
         ]);
     }
 
+    public function sendEmail(Invoice $invoice): InvoiceResource
+    {
+        $this->authorize('view', $invoice);
+
+        if (! $invoice->pdf_path || ! Storage::disk(config('filesystems.default'))->exists($invoice->pdf_path)) {
+            $this->invoiceService->generatePdf($invoice);
+        }
+
+        $this->invoiceService->sendEmail($invoice);
+
+        return InvoiceResource::make($invoice->fresh(['customer', 'supplier', 'lines.item', 'payments']));
+    }
+
     private function index(Request $request, InvoiceType $type): AnonymousResourceCollection
     {
         $partyFilter = $type === InvoiceType::SalesOrder ? 'customer_id' : 'supplier_id';
