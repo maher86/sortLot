@@ -34,7 +34,6 @@ class GenerateInvoicePdfJob implements ShouldQueue
             'company' => $company,
             'party' => $party,
             'taxLabel' => $isTaxable ? 'Tax Invoice' : 'Zero-Rated Supply',
-            'arabicTaxLabel' => 'فاتورة ضريبية',
             'isPaid' => $invoice->status === InvoiceStatus::Paid,
         ])->setPaper('a4');
 

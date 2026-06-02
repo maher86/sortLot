@@ -41,6 +41,11 @@ services:
       CACHE_STORE: redis
       SESSION_DRIVER: redis
       QUEUE_CONNECTION: redis
+      MAIL_MAILER: smtp
+      MAIL_HOST: mailhog
+      MAIL_PORT: 1025
+      MAIL_FROM_ADDRESS: noreply@sortlot.local
+      MAIL_FROM_NAME: SortLot
     depends_on:
       mysql:
         condition: service_healthy
