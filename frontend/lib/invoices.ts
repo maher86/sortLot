@@ -44,6 +44,8 @@ export type Invoice = {
   customer_id: string | null;
   supplier_id: string | null;
   related_invoice_id: string | null;
+  related_invoice_number?: string | null;
+  related_invoice_type?: InvoiceType | null;
   issue_date: string;
   due_date: string | null;
   delivery_date: string | null;
@@ -67,7 +69,7 @@ export type Invoice = {
   payments?: Payment[];
 };
 
-export type InvoiceKind = "sales" | "purchase";
+export type InvoiceKind = "sales" | "purchase" | "credit";
 
 export const invoiceStatuses: InvoiceStatus[] = ["draft", "pending", "partial", "paid", "overdue", "cancelled", "refunded", "disputed", "write_off"];
 export const paymentMethods: PaymentMethod[] = ["cash", "bank_transfer", "card", "cheque", "credit_note", "other"];
@@ -80,10 +82,18 @@ export function formatStatus(status: string) {
 }
 
 export function invoiceEndpoint(kind: InvoiceKind) {
+  if (kind === "credit") {
+    return "/credit-notes";
+  }
+
   return kind === "sales" ? "/sales-orders" : "/purchase-orders";
 }
 
 export function invoicePath(kind: InvoiceKind) {
+  if (kind === "credit") {
+    return "/invoices/credit-notes";
+  }
+
   return kind === "sales" ? "/invoices/sales" : "/invoices/purchase";
 }
 
@@ -207,13 +217,14 @@ export function useCreateCreditNote(invoiceId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async () => {
-      const response = await api.post<{ data: Invoice }>(`/sales-orders/${invoiceId}/credit-note`);
+    mutationFn: async (payload: { amount_fils?: number } = {}) => {
+      const response = await api.post<{ data: Invoice }>(`/sales-orders/${invoiceId}/credit-note`, payload);
 
       return response.data.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["invoices", "sales"] });
+      queryClient.invalidateQueries({ queryKey: ["invoices", "credit"] });
     },
   });
 }

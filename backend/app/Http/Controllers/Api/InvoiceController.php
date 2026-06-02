@@ -48,6 +48,13 @@ class InvoiceController extends Controller
         return InvoiceResource::make($invoice)->response()->setStatusCode(201);
     }
 
+    public function creditNotes(Request $request): AnonymousResourceCollection
+    {
+        $this->authorize('viewSales', Invoice::class);
+
+        return $this->index($request, InvoiceType::CreditNote);
+    }
+
     public function purchaseOrders(Request $request): AnonymousResourceCollection
     {
         $this->authorize('viewPurchase', Invoice::class);
@@ -148,7 +155,11 @@ class InvoiceController extends Controller
     {
         $this->authorize('createSales', Invoice::class);
 
-        $creditNote = $this->invoiceService->generateCreditNote($invoice);
+        $validated = request()->validate([
+            'amount_fils' => ['nullable', 'integer', 'min:1'],
+        ]);
+
+        $creditNote = $this->invoiceService->generateCreditNote($invoice, $validated['amount_fils'] ?? null);
 
         return InvoiceResource::make($creditNote)->response()->setStatusCode(201);
     }
@@ -199,11 +210,11 @@ class InvoiceController extends Controller
 
     private function index(Request $request, InvoiceType $type): AnonymousResourceCollection
     {
-        $partyFilter = $type === InvoiceType::SalesOrder ? 'customer_id' : 'supplier_id';
+        $partyFilter = $type === InvoiceType::PurchaseOrder ? 'supplier_id' : 'customer_id';
 
         $invoices = Invoice::query()
             ->type($type)
-            ->with(['customer', 'supplier'])
+            ->with(['customer', 'supplier', 'relatedInvoice'])
             ->withCount('payments')
             ->when($request->input('filter.status'), fn ($query, $status) => $query->where('status', $status))
             ->when($request->input("filter.{$partyFilter}"), fn ($query, $partyId) => $query->where($partyFilter, $partyId))

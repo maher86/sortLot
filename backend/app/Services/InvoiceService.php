@@ -156,9 +156,25 @@ class InvoiceService
         return $this->calculateVatForType($invoice->type, $party);
     }
 
-    public function generateCreditNote(Invoice $original): Invoice
+    public function generateCreditNote(Invoice $original, ?int $amountFils = null): Invoice
     {
         $original->load('lines');
+        $lines = $amountFils
+            ? [[
+                'description' => "Credit adjustment for {$original->number}",
+                'quantity' => 1,
+                'unit_price_fils' => $amountFils,
+                'discount_pct' => 0,
+                'sort_order' => 0,
+            ]]
+            : $original->lines->map(fn (InvoiceLine $line): array => [
+                'item_id' => $line->item_id,
+                'description' => "Credit: {$line->description}",
+                'quantity' => $line->quantity,
+                'unit_price_fils' => $line->unit_price_fils,
+                'discount_pct' => $line->discount_pct,
+                'sort_order' => $line->sort_order,
+            ])->all();
 
         return $this->create([
             'type' => InvoiceType::CreditNote,
@@ -174,14 +190,7 @@ class InvoiceService
             'exchange_rate' => $original->exchange_rate,
             'notes' => "Credit note for invoice {$original->number}",
             'created_by' => $original->created_by,
-            'lines' => $original->lines->map(fn (InvoiceLine $line): array => [
-                'item_id' => $line->item_id,
-                'description' => "Credit: {$line->description}",
-                'quantity' => $line->quantity,
-                'unit_price_fils' => $line->unit_price_fils,
-                'discount_pct' => $line->discount_pct,
-                'sort_order' => $line->sort_order,
-            ])->all(),
+            'lines' => $lines,
         ]);
     }
 

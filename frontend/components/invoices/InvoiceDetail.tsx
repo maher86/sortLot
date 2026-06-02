@@ -50,9 +50,10 @@ export function InvoiceDetail({ id, kind }: { id: string; kind: InvoiceKind }) {
   }
 
   const party = invoice.customer ?? invoice.supplier;
-  const canConfirm = invoice.status === "draft";
-  const canCancel = !["cancelled", "paid"].includes(invoice.status);
-  const canPay = !["draft", "cancelled", "paid"].includes(invoice.status) && invoice.balance_fils > 0;
+  const isCreditNote = kind === "credit";
+  const canConfirm = !isCreditNote && invoice.status === "draft";
+  const canCancel = !isCreditNote && !["cancelled", "paid"].includes(invoice.status);
+  const canPay = !isCreditNote && !["draft", "cancelled", "paid"].includes(invoice.status) && invoice.balance_fils > 0;
 
   async function confirm() {
     await confirmInvoice.mutateAsync();
@@ -118,7 +119,15 @@ export function InvoiceDetail({ id, kind }: { id: string; kind: InvoiceKind }) {
   }
 
   async function creditNote() {
-    const created = await createCreditNote.mutateAsync();
+    const amount = window.prompt("Credit amount in AED. Leave empty for full invoice credit.", "");
+    const amountFils = amount ? Math.round(Number(amount) * 100) : null;
+
+    if (amountFils !== null && (!Number.isFinite(amountFils) || amountFils <= 0)) {
+      toast.error("Enter a valid credit amount");
+      return;
+    }
+
+    const created = await createCreditNote.mutateAsync(amountFils === null ? {} : { amount_fils: amountFils });
     toast.success(`Credit note ${created.number} created`);
   }
 
@@ -131,18 +140,27 @@ export function InvoiceDetail({ id, kind }: { id: string; kind: InvoiceKind }) {
             <InvoiceStatusBadge status={invoice.status} />
           </div>
           <p className="mt-1 text-sm text-muted-foreground">
-            {kind === "sales" ? "Sales order" : "Purchase order"} for {party?.name ?? "Unknown party"}
+            {kind === "credit" ? "Credit note" : kind === "sales" ? "Sales order" : "Purchase order"} for {party?.name ?? "Unknown party"}
           </p>
+          {invoice.related_invoice_id ? (
+            <Link className="mt-1 inline-block text-sm text-primary hover:underline" href={`/invoices/sales/${invoice.related_invoice_id}`}>
+              Original invoice: {invoice.related_invoice_number ?? invoice.related_invoice_id}
+            </Link>
+          ) : null}
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button disabled={!canConfirm || confirmInvoice.isPending} onClick={confirm} variant="outline">
-            <Send className="h-4 w-4" />
-            Confirm
-          </Button>
-          <Button disabled={!canCancel || cancelInvoice.isPending} onClick={cancel} variant="outline">
-            <RotateCcw className="h-4 w-4" />
-            Cancel
-          </Button>
+          {!isCreditNote ? (
+            <>
+              <Button disabled={!canConfirm || confirmInvoice.isPending} onClick={confirm} variant="outline">
+                <Send className="h-4 w-4" />
+                Confirm
+              </Button>
+              <Button disabled={!canCancel || cancelInvoice.isPending} onClick={cancel} variant="outline">
+                <RotateCcw className="h-4 w-4" />
+                Cancel
+              </Button>
+            </>
+          ) : null}
           <Button onClick={downloadPdf} variant="outline">
             <Download className="h-4 w-4" />
             Download PDF
@@ -226,8 +244,10 @@ export function InvoiceDetail({ id, kind }: { id: string; kind: InvoiceKind }) {
         </div>
 
         <aside className="space-y-4 rounded-md border bg-background p-4">
-          <h2 className="font-semibold">Record payment</h2>
-          <form className="space-y-3" onSubmit={recordPayment}>
+          {!isCreditNote ? (
+            <>
+              <h2 className="font-semibold">Record payment</h2>
+              <form className="space-y-3" onSubmit={recordPayment}>
             <label className="space-y-1 text-sm font-medium">
               Amount fils
               <Input disabled={!canPay} onChange={(event) => setAmountFils(event.target.value)} required type="number" value={amountFils} />
@@ -250,11 +270,13 @@ export function InvoiceDetail({ id, kind }: { id: string; kind: InvoiceKind }) {
               Reference
               <Input disabled={!canPay} onChange={(event) => setReference(event.target.value)} value={reference} />
             </label>
-            <Button disabled={!canPay || createPayment.isPending} type="submit">
-              <CreditCard className="h-4 w-4" />
-              Record payment
-            </Button>
-          </form>
+                <Button disabled={!canPay || createPayment.isPending} type="submit">
+                  <CreditCard className="h-4 w-4" />
+                  Record payment
+                </Button>
+              </form>
+            </>
+          ) : null}
           <dl className="space-y-2 border-t pt-4 text-sm">
             <MetricRow label="Subtotal" value={formatFils(invoice.subtotal_fils)} />
             <MetricRow label="Discount" value={formatFils(invoice.discount_fils)} />

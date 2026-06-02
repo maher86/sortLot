@@ -67,6 +67,11 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::get('/sales-orders/{invoice}/pdf', [InvoiceController::class, 'pdf']);
     Route::post('/sales-orders/{invoice}/send-email', [InvoiceController::class, 'sendEmail']);
 
+    Route::get('/credit-notes', [InvoiceController::class, 'creditNotes']);
+    Route::get('/credit-notes/{invoice}', [InvoiceController::class, 'show']);
+    Route::get('/credit-notes/{invoice}/pdf', [InvoiceController::class, 'pdf']);
+    Route::post('/credit-notes/{invoice}/send-email', [InvoiceController::class, 'sendEmail']);
+
     Route::get('/purchase-orders', [InvoiceController::class, 'purchaseOrders']);
     Route::post('/purchase-orders', [InvoiceController::class, 'storePurchaseOrder']);
     Route::get('/purchase-orders/{invoice}', [InvoiceController::class, 'show']);
