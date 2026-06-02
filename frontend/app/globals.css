@@ -8,6 +8,53 @@
   .text-balance {
     text-wrap: balance;
   }
+
+  .sortlot-fade-up {
+    animation: sortlot-fade-up 520ms ease both;
+  }
+
+  .sortlot-drift {
+    animation: sortlot-drift 5s ease-in-out infinite;
+  }
+
+  .sortlot-sheen {
+    background-size: 220% 100%;
+    animation: sortlot-sheen 7s ease-in-out infinite;
+  }
+}
+
+@keyframes sortlot-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes sortlot-drift {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes sortlot-sheen {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
 }
 
 @layer base {

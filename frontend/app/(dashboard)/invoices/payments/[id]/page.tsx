@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useState } from "react";
 import { Download, Mail } from "lucide-react";
 import { toast } from "sonner";
 
@@ -25,6 +26,7 @@ function kindFor(type?: string): InvoiceKind {
 export default function PaymentDetailPage() {
   const params = useParams<{ id: string }>();
   const { data: payment, isLoading } = usePayment(params.id);
+  const [isExporting, setIsExporting] = useState(false);
 
   if (isLoading) {
     return <div className="rounded-md border p-6 text-sm text-muted-foreground">Loading payment</div>;
@@ -39,22 +41,45 @@ export default function PaymentDetailPage() {
   const party = invoice?.customer ?? invoice?.supplier;
 
   async function exportPdf() {
-    const response = await api.get(`/payments/${currentPayment.id}/pdf`, { responseType: "blob" });
-    const contentType = String(response.headers["content-type"] ?? "");
+    const popup = window.open("", "_blank");
+    setIsExporting(true);
 
-    if (!contentType.includes("application/pdf")) {
-      toast.error("Payment PDF could not be generated.");
-      return;
+    try {
+      if (popup) {
+        popup.document.write("<title>Preparing payment receipt</title><p style='font-family: Arial; padding: 24px;'>Preparing payment receipt PDF...</p>");
+      }
+
+      const response = await api.get(`/payments/${currentPayment.id}/pdf`, { responseType: "blob" });
+      const contentType = String(response.headers["content-type"] ?? "");
+
+      if (!contentType.includes("application/pdf")) {
+        const message = await response.data.text();
+        popup?.close();
+        toast.error(message || "Payment PDF could not be generated.");
+        return;
+      }
+
+      const url = window.URL.createObjectURL(response.data);
+      const filename = `payment-receipt-${currentPayment.reference ?? currentPayment.id}.pdf`;
+
+      if (popup) {
+        popup.location.href = url;
+      }
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => window.URL.revokeObjectURL(url), 60000);
+      toast.success("Payment receipt PDF ready");
+    } catch {
+      popup?.close();
+      toast.error("Payment PDF export failed. Please sign in again and retry.");
+    } finally {
+      setIsExporting(false);
     }
-
-    const url = window.URL.createObjectURL(response.data);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `payment-receipt-${currentPayment.reference ?? currentPayment.id}.pdf`;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    window.URL.revokeObjectURL(url);
   }
 
   async function sendEmail() {
@@ -80,9 +105,9 @@ export default function PaymentDetailPage() {
           ) : null}
         </div>
         <div className="flex gap-2">
-          <Button onClick={exportPdf} variant="outline">
+          <Button disabled={isExporting} onClick={exportPdf} variant="outline">
             <Download className="h-4 w-4" />
-            Export PDF
+            {isExporting ? "Exporting" : "Export PDF"}
           </Button>
           <Button onClick={sendEmail} variant="outline">
             <Mail className="h-4 w-4" />
