@@ -177,15 +177,22 @@ class InvoiceController extends Controller
         ]);
     }
 
-    public function sendEmail(Invoice $invoice): InvoiceResource
+    public function sendEmail(Request $request, Invoice $invoice): InvoiceResource|JsonResponse
     {
         $this->authorize('view', $invoice);
 
-        if (! $invoice->pdf_path || ! Storage::disk(config('filesystems.default'))->exists($invoice->pdf_path)) {
-            $this->invoiceService->generatePdf($invoice);
-        }
+        $validated = $request->validate([
+            'email' => ['nullable', 'email'],
+        ]);
 
-        $this->invoiceService->sendEmail($invoice);
+        try {
+            $this->invoiceService->sendEmail($invoice, $validated['email'] ?? null);
+        } catch (InvalidArgumentException $exception) {
+            return response()->json([
+                'message' => $exception->getMessage(),
+                'code' => 'INVOICE_EMAIL_FAILED',
+            ], 422);
+        }
 
         return InvoiceResource::make($invoice->fresh(['customer', 'supplier', 'lines.item', 'payments']));
     }

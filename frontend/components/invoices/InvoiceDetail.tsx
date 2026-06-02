@@ -105,9 +105,16 @@ export function InvoiceDetail({ id, kind }: { id: string; kind: InvoiceKind }) {
   }
 
   async function sendEmail() {
-    await api.post(`${invoiceEndpoint(kind)}/${id}/send-email`);
+    const defaultEmail = invoice?.customer?.email ?? invoice?.supplier?.email ?? "";
+    const email = window.prompt("Send invoice email to", defaultEmail);
+
+    if (!email) {
+      return;
+    }
+
+    await api.post(`${invoiceEndpoint(kind)}/${id}/send-email`, { email });
     await refetch();
-    toast.success("Invoice email marked as sent");
+    toast.success(`Invoice email sent to ${email}`);
   }
 
   async function creditNote() {

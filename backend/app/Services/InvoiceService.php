@@ -13,6 +13,8 @@ use App\Models\InvoiceLine;
 use App\Models\Item;
 use App\Models\Supplier;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use InvalidArgumentException;
 
 class InvoiceService
@@ -110,13 +112,39 @@ class InvoiceService
             'pdf_generated_at' => null,
         ])->save();
 
-        GenerateInvoicePdfJob::dispatch($invoice->id);
+        GenerateInvoicePdfJob::dispatchSync($invoice->id);
 
         return $path;
     }
 
-    public function sendEmail(Invoice $invoice): void
+    public function sendEmail(Invoice $invoice, ?string $recipient = null): void
     {
+        $invoice->loadMissing(['customer', 'supplier']);
+
+        $recipient ??= $invoice->customer?->email ?? $invoice->supplier?->email;
+
+        if (! $recipient) {
+            throw new InvalidArgumentException('Invoice party does not have an email address.');
+        }
+
+        if (! $invoice->pdf_path || ! Storage::disk(config('filesystems.default'))->exists($invoice->pdf_path)) {
+            $this->generatePdf($invoice);
+            $invoice = $invoice->fresh(['customer', 'supplier']);
+        }
+
+        $pdf = Storage::disk(config('filesystems.default'))->get($invoice->pdf_path);
+        $partyName = $invoice->customer?->name ?? $invoice->supplier?->name ?? 'Customer';
+
+        Mail::html(
+            "<p>Hello {$partyName},</p><p>Please find invoice {$invoice->number} attached.</p><p>Thank you,<br>SortLot</p>",
+            function ($message) use ($invoice, $pdf, $recipient): void {
+                $message
+                    ->to($recipient)
+                    ->subject("Invoice {$invoice->number}")
+                    ->attachData($pdf, "{$invoice->number}.pdf", ['mime' => 'application/pdf']);
+            }
+        );
+
         $invoice->forceFill(['sent_at' => now()])->save();
     }
 
