@@ -9,6 +9,7 @@ use App\Models\Payment;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Mail;
 
 class PaymentController extends Controller
 {
@@ -17,6 +18,7 @@ class PaymentController extends Controller
         $this->authorize('viewAny', Payment::class);
 
         $payments = Payment::query()
+            ->with(['invoice.customer', 'invoice.supplier'])
             ->when($request->input('filter.invoice_id'), fn ($query, $invoiceId) => $query->where('invoice_id', $invoiceId))
             ->when($request->input('filter.method'), fn ($query, $method) => $query->where('payment_method', $method))
             ->when($request->input('from'), fn ($query, $from) => $query->whereDate('payment_date', '>=', $from))
@@ -42,6 +44,35 @@ class PaymentController extends Controller
     public function show(Payment $payment): PaymentResource
     {
         $this->authorize('view', $payment);
+
+        return PaymentResource::make($payment->load(['invoice.customer', 'invoice.supplier']));
+    }
+
+    public function sendEmail(Request $request, Payment $payment): PaymentResource|JsonResponse
+    {
+        $this->authorize('view', $payment);
+
+        $validated = $request->validate([
+            'email' => ['required', 'email'],
+        ]);
+
+        $payment->load(['invoice.customer', 'invoice.supplier']);
+        $invoice = $payment->invoice;
+        $party = $invoice?->customer ?? $invoice?->supplier;
+        $subjectReference = $payment->reference ?? $payment->id;
+
+        Mail::html(
+            view('mail.payment-receipt', [
+                'payment' => $payment,
+                'invoice' => $invoice,
+                'party' => $party,
+            ])->render(),
+            function ($message) use ($subjectReference, $validated): void {
+                $message
+                    ->to($validated['email'])
+                    ->subject("Payment receipt {$subjectReference}");
+            }
+        );
 
         return PaymentResource::make($payment);
     }

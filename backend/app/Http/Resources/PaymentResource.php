@@ -24,6 +24,7 @@ class PaymentResource extends JsonResource
             'bank_name' => $this->bank_name,
             'notes' => $this->notes,
             'created_by' => $this->created_by,
+            'invoice' => InvoiceResource::make($this->whenLoaded('invoice')),
             'created_at' => $this->created_at?->toISOString(),
             'updated_at' => $this->updated_at?->toISOString(),
         ];

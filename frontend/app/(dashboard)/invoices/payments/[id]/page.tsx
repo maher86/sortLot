@@ -1,0 +1,112 @@
+"use client";
+
+import Link from "next/link";
+import { useParams } from "next/navigation";
+import { Download, Mail } from "lucide-react";
+import { toast } from "sonner";
+
+import { Button } from "@/components/ui/button";
+import { api } from "@/lib/api";
+import { formatFils } from "@/lib/contacts";
+import { formatStatus, invoicePath, usePayment, type InvoiceKind } from "@/lib/invoices";
+
+function kindFor(type?: string): InvoiceKind {
+  if (type === "purchase_order") {
+    return "purchase";
+  }
+
+  if (type === "credit_note") {
+    return "credit";
+  }
+
+  return "sales";
+}
+
+export default function PaymentDetailPage() {
+  const params = useParams<{ id: string }>();
+  const { data: payment, isLoading } = usePayment(params.id);
+
+  if (isLoading) {
+    return <div className="rounded-md border p-6 text-sm text-muted-foreground">Loading payment</div>;
+  }
+
+  if (!payment) {
+    return <div className="rounded-md border p-6 text-sm text-muted-foreground">Payment not found</div>;
+  }
+
+  const currentPayment = payment;
+  const invoice = currentPayment.invoice;
+  const party = invoice?.customer ?? invoice?.supplier;
+
+  function exportPdf() {
+    const html = `
+      <html><head><title>Payment ${currentPayment.id}</title></head>
+      <body style="font-family: Arial, sans-serif; padding: 32px;">
+        <h1>Payment Receipt</h1>
+        <p><strong>Payment ID:</strong> ${currentPayment.id}</p>
+        <p><strong>Date:</strong> ${currentPayment.payment_date}</p>
+        <p><strong>Invoice:</strong> ${invoice?.number ?? currentPayment.invoice_id}</p>
+        <p><strong>Party:</strong> ${party?.name ?? "-"}</p>
+        <p><strong>Method:</strong> ${formatStatus(currentPayment.payment_method)}</p>
+        <p><strong>Reference:</strong> ${currentPayment.reference ?? "-"}</p>
+        <p><strong>Amount:</strong> ${formatFils(currentPayment.amount_fils)}</p>
+      </body></html>
+    `;
+    const popup = window.open("", "_blank", "noopener,noreferrer");
+    popup?.document.write(html);
+    popup?.document.close();
+    popup?.print();
+  }
+
+  async function sendEmail() {
+    const email = window.prompt("Send payment receipt to", party?.email ?? "");
+    if (!email) {
+      return;
+    }
+
+    await api.post(`/payments/${currentPayment.id}/send-email`, { email });
+    toast.success(`Payment receipt sent to ${email}`);
+  }
+
+  return (
+    <section className="space-y-5">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold">Payment Receipt</h1>
+          <p className="mt-1 text-sm text-muted-foreground">{currentPayment.id}</p>
+          {invoice ? (
+            <Link className="mt-1 inline-block text-sm text-primary hover:underline" href={`${invoicePath(kindFor(invoice.type))}/${invoice.id}`}>
+              Invoice: {invoice.number}
+            </Link>
+          ) : null}
+        </div>
+        <div className="flex gap-2">
+          <Button onClick={exportPdf} variant="outline">
+            <Download className="h-4 w-4" />
+            Export PDF
+          </Button>
+          <Button onClick={sendEmail} variant="outline">
+            <Mail className="h-4 w-4" />
+            Send email
+          </Button>
+        </div>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-4">
+        <Metric label="Amount" value={formatFils(currentPayment.amount_fils)} />
+        <Metric label="Date" value={currentPayment.payment_date} />
+        <Metric label="Method" value={formatStatus(currentPayment.payment_method)} />
+        <Metric label="Reference" value={currentPayment.reference ?? "-"} />
+      </div>
+    </section>
+  );
+}
+
+function Metric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-md border bg-background p-3">
+      <div className="text-xs uppercase text-muted-foreground">{label}</div>
+      <div className="mt-1 font-semibold">{value}</div>
+    </div>
+  );
+}

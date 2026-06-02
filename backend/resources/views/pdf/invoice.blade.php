@@ -137,7 +137,6 @@
     </div>
     <div class="invoice-meta">
         <h2>{{ $taxLabel }}</h2>
-        <div>{{ $arabicTaxLabel }}</div>
         <div class="label">{{ $invoice->number }}</div>
         @if($isPaid)
             <div class="paid-stamp">Paid</div>

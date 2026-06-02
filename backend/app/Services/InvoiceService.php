@@ -13,6 +13,8 @@ use App\Models\InvoiceLine;
 use App\Models\Item;
 use App\Models\Supplier;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use InvalidArgumentException;
 
 class InvoiceService
@@ -110,13 +112,39 @@ class InvoiceService
             'pdf_generated_at' => null,
         ])->save();
 
-        GenerateInvoicePdfJob::dispatch($invoice->id);
+        GenerateInvoicePdfJob::dispatchSync($invoice->id);
 
         return $path;
     }
 
-    public function sendEmail(Invoice $invoice): void
+    public function sendEmail(Invoice $invoice, ?string $recipient = null): void
     {
+        $invoice->loadMissing(['customer', 'supplier']);
+
+        $recipient ??= $invoice->customer?->email ?? $invoice->supplier?->email;
+
+        if (! $recipient) {
+            throw new InvalidArgumentException('Invoice party does not have an email address.');
+        }
+
+        if (! $invoice->pdf_path || ! Storage::disk(config('filesystems.default'))->exists($invoice->pdf_path)) {
+            $this->generatePdf($invoice);
+            $invoice = $invoice->fresh(['customer', 'supplier']);
+        }
+
+        $pdf = Storage::disk(config('filesystems.default'))->get($invoice->pdf_path);
+        $partyName = $invoice->customer?->name ?? $invoice->supplier?->name ?? 'Customer';
+
+        Mail::html(
+            "<p>Hello {$partyName},</p><p>Please find invoice {$invoice->number} attached.</p><p>Thank you,<br>SortLot</p>",
+            function ($message) use ($invoice, $pdf, $recipient): void {
+                $message
+                    ->to($recipient)
+                    ->subject("Invoice {$invoice->number}")
+                    ->attachData($pdf, "{$invoice->number}.pdf", ['mime' => 'application/pdf']);
+            }
+        );
+
         $invoice->forceFill(['sent_at' => now()])->save();
     }
 
@@ -128,9 +156,25 @@ class InvoiceService
         return $this->calculateVatForType($invoice->type, $party);
     }
 
-    public function generateCreditNote(Invoice $original): Invoice
+    public function generateCreditNote(Invoice $original, ?int $amountFils = null): Invoice
     {
         $original->load('lines');
+        $lines = $amountFils
+            ? [[
+                'description' => "Credit adjustment for {$original->number}",
+                'quantity' => 1,
+                'unit_price_fils' => $amountFils,
+                'discount_pct' => 0,
+                'sort_order' => 0,
+            ]]
+            : $original->lines->map(fn (InvoiceLine $line): array => [
+                'item_id' => $line->item_id,
+                'description' => "Credit: {$line->description}",
+                'quantity' => $line->quantity,
+                'unit_price_fils' => $line->unit_price_fils,
+                'discount_pct' => $line->discount_pct,
+                'sort_order' => $line->sort_order,
+            ])->all();
 
         return $this->create([
             'type' => InvoiceType::CreditNote,
@@ -146,14 +190,7 @@ class InvoiceService
             'exchange_rate' => $original->exchange_rate,
             'notes' => "Credit note for invoice {$original->number}",
             'created_by' => $original->created_by,
-            'lines' => $original->lines->map(fn (InvoiceLine $line): array => [
-                'item_id' => $line->item_id,
-                'description' => "Credit: {$line->description}",
-                'quantity' => $line->quantity,
-                'unit_price_fils' => $line->unit_price_fils,
-                'discount_pct' => $line->discount_pct,
-                'sort_order' => $line->sort_order,
-            ])->all(),
+            'lines' => $lines,
         ]);
     }
 

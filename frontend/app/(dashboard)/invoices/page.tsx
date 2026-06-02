@@ -21,9 +21,16 @@ export default function InvoicesPage() {
   const [to, setTo] = useState("");
   const sales = useInvoices("sales", { status, search, from, to });
   const purchase = useInvoices("purchase", { status, search, from, to });
+  const credit = useInvoices("credit", { status, search, from, to });
   const payments = usePayments("");
-  const invoices = useMemo(() => (tab === "purchase" ? purchase.data ?? [] : sales.data ?? []), [purchase.data, sales.data, tab]);
-  const isLoading = tab === "purchase" ? purchase.isLoading : sales.isLoading;
+  const invoices = useMemo(() => {
+    if (tab === "credit") {
+      return credit.data ?? [];
+    }
+
+    return tab === "purchase" ? purchase.data ?? [] : sales.data ?? [];
+  }, [credit.data, purchase.data, sales.data, tab]);
+  const isLoading = tab === "credit" ? credit.isLoading : tab === "purchase" ? purchase.isLoading : sales.isLoading;
 
   const exportHref = useMemo(() => {
     const rows = invoices.map((invoice) => [invoice.number, invoice.status, invoice.issue_date, invoice.customer?.name ?? invoice.supplier?.name ?? "", invoice.total_fils, invoice.balance_fils]);
@@ -36,7 +43,7 @@ export default function InvoicesPage() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-semibold">Invoicing</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Sales orders, purchase orders, PDF actions, and payments.</p>
+          <p className="mt-1 text-sm text-muted-foreground">Finance workspace for invoices, credit notes, PDFs, email, and payments.</p>
         </div>
         <div className="flex gap-2">
           <Link className={buttonVariants()} href="/invoices/sales/new">
@@ -53,6 +60,7 @@ export default function InvoicesPage() {
       <div className="flex flex-wrap gap-2">
         <TabButton active={tab === "sales"} onClick={() => setTab("sales")}>Sales Orders</TabButton>
         <TabButton active={tab === "purchase"} onClick={() => setTab("purchase")}>Purchase Orders</TabButton>
+        <TabButton active={tab === "credit"} onClick={() => setTab("credit")}>Credit Notes</TabButton>
         <TabButton active={tab === "payments"} onClick={() => setTab("payments")}>Payments</TabButton>
       </div>
 
@@ -72,7 +80,7 @@ export default function InvoicesPage() {
               </label>
               <Input aria-label="From date" onChange={(event) => setFrom(event.target.value)} type="date" value={from} />
               <Input aria-label="To date" onChange={(event) => setTo(event.target.value)} type="date" value={to} />
-              <a className={buttonVariants({ variant: "outline" })} download={`${tab}-orders.csv`} href={exportHref}>
+              <a className={buttonVariants({ variant: "outline" })} download={`${tab}-invoices.csv`} href={exportHref}>
                 <Download className="h-4 w-4" />
                 Export
               </a>
@@ -86,15 +94,17 @@ export default function InvoicesPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Date</TableHead>
+                <TableHead>Invoice</TableHead>
                 <TableHead>Method</TableHead>
                 <TableHead>Reference</TableHead>
                 <TableHead>Amount</TableHead>
+                <TableHead className="text-right">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {payments.data?.length === 0 ? (
                 <TableRow>
-                  <TableCell className="py-8 text-center text-muted-foreground" colSpan={4}>
+                  <TableCell className="py-8 text-center text-muted-foreground" colSpan={6}>
                     No payments found
                   </TableCell>
                 </TableRow>
@@ -102,9 +112,23 @@ export default function InvoicesPage() {
               {payments.data?.map((payment) => (
                 <TableRow key={payment.id}>
                   <TableCell>{payment.payment_date}</TableCell>
+                  <TableCell>
+                    {payment.invoice ? (
+                      <Link className="text-primary hover:underline" href={`${invoicePath(payment.invoice.type === "purchase_order" ? "purchase" : payment.invoice.type === "credit_note" ? "credit" : "sales")}/${payment.invoice.id}`}>
+                        {payment.invoice.number}
+                      </Link>
+                    ) : (
+                      payment.invoice_id
+                    )}
+                  </TableCell>
                   <TableCell>{formatStatus(payment.payment_method)}</TableCell>
                   <TableCell>{payment.reference ?? "-"}</TableCell>
                   <TableCell>{formatFils(payment.amount_fils)}</TableCell>
+                  <TableCell className="text-right">
+                    <Link className={buttonVariants({ size: "sm", variant: "outline" })} href={`/invoices/payments/${payment.id}`}>
+                      Open
+                    </Link>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -123,6 +147,7 @@ function InvoiceTable({ invoices, isLoading, kind }: { invoices: Invoice[]; isLo
           <TableRow>
             <TableHead>Number</TableHead>
             <TableHead>Party</TableHead>
+            {kind === "credit" ? <TableHead>Original invoice</TableHead> : null}
             <TableHead>Status</TableHead>
             <TableHead>Issue date</TableHead>
             <TableHead>Total</TableHead>
@@ -133,14 +158,14 @@ function InvoiceTable({ invoices, isLoading, kind }: { invoices: Invoice[]; isLo
         <TableBody>
           {isLoading ? (
             <TableRow>
-              <TableCell className="py-8 text-center text-muted-foreground" colSpan={7}>
+              <TableCell className="py-8 text-center text-muted-foreground" colSpan={kind === "credit" ? 8 : 7}>
                 Loading invoices
               </TableCell>
             </TableRow>
           ) : null}
           {!isLoading && invoices.length === 0 ? (
             <TableRow>
-              <TableCell className="py-8 text-center text-muted-foreground" colSpan={7}>
+              <TableCell className="py-8 text-center text-muted-foreground" colSpan={kind === "credit" ? 8 : 7}>
                 No invoices found
               </TableCell>
             </TableRow>
@@ -149,6 +174,17 @@ function InvoiceTable({ invoices, isLoading, kind }: { invoices: Invoice[]; isLo
             <TableRow key={invoice.id}>
               <TableCell className="font-medium">{invoice.number}</TableCell>
               <TableCell>{invoice.customer?.name ?? invoice.supplier?.name ?? "-"}</TableCell>
+              {kind === "credit" ? (
+                <TableCell>
+                  {invoice.related_invoice_id ? (
+                    <Link className="text-primary hover:underline" href={`/invoices/sales/${invoice.related_invoice_id}`}>
+                      {invoice.related_invoice_number ?? invoice.related_invoice_id}
+                    </Link>
+                  ) : (
+                    "-"
+                  )}
+                </TableCell>
+              ) : null}
               <TableCell><InvoiceStatusBadge status={invoice.status} /></TableCell>
               <TableCell>{invoice.issue_date}</TableCell>
               <TableCell>{formatFils(invoice.total_fils)}</TableCell>
