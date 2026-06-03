@@ -30,8 +30,8 @@ class PackageResource extends JsonResource
             'sorting_completed_at' => $this->sorting_completed_at?->toISOString(),
             'sorted_by' => $this->sorted_by,
             'created_by' => $this->created_by,
-            'items_count' => $this->items_count,
-            'available_items_count' => $this->available_items_count,
+            'items_count' => (int) ($this->items_count ?? 0),
+            'available_items_count' => (int) ($this->available_items_count ?? 0),
             'created_at' => $this->created_at?->toISOString(),
             'updated_at' => $this->updated_at?->toISOString(),
         ];

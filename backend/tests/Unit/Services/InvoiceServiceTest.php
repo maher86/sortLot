@@ -108,7 +108,10 @@ class InvoiceServiceTest extends TestCase
     {
         $this->seed();
         $user = User::where('email', 'admin@sortlot.local')->firstOrFail();
-        $customer = Customer::query()->create(['name' => 'Service Customer']);
+        $customer = Customer::query()->create([
+            'name' => 'Service Customer',
+            'email' => 'service-customer@example.test',
+        ]);
 
         return [$user, $customer];
     }

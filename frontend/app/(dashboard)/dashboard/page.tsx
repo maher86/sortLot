@@ -1,7 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowUpRight, Banknote, Boxes, CheckCircle2, Clock3, PackageCheck, ReceiptText, Sparkles, Truck, Users } from "lucide-react";
+import {
+  ArrowUpRight,
+  Banknote,
+  Boxes,
+  CheckCircle2,
+  Clock3,
+  PackageCheck,
+  Radar,
+  ReceiptText,
+  Sparkles,
+  Truck,
+  Users,
+  type LucideIcon,
+} from "lucide-react";
 
 import { buttonVariants } from "@/components/ui/button";
 import { formatFils, useCustomers, useSuppliers } from "@/lib/contacts";
@@ -47,9 +60,12 @@ export default function DashboardPage() {
   const activePackages = packageRows.filter((row) => !["shipped", "closed"].includes(row.status)).length;
   const sortedPackages = packageRows.filter((row) => ["sorted", "partially_shipped", "shipped", "closed"].includes(row.status)).length;
   const sortingProgress = pct(sortedPackages, packageRows.length);
+  const inventoryTotal = Math.max(itemRows.length, 1);
+  const financeTotal = Math.max(openReceivables + openPayables + cashCollected + credited, 1);
+  const maxInvoiceTotal = Math.max(...salesInvoices.map((row) => row.total_fils), 1);
   const revenuePulse = salesInvoices.slice(0, 8).map((invoice, index) => ({
     id: invoice.id,
-    height: Math.max(18, pct(invoice.total_fils, Math.max(...salesInvoices.map((row) => row.total_fils), 1)) || 12) + index * 2,
+    height: Math.max(18, pct(invoice.total_fils, maxInvoiceTotal) || 12) + index * 2,
   }));
   const recentInvoices = [...salesInvoices, ...purchaseInvoices, ...creditNotes]
     .sort((a, b) => b.issue_date.localeCompare(a.issue_date))
@@ -85,17 +101,9 @@ export default function DashboardPage() {
           </div>
 
           <div className="sortlot-drift rounded-md border border-white/15 bg-white/10 p-4 backdrop-blur">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs uppercase text-white/60">Sorting velocity</p>
-                <p className="mt-1 text-3xl font-semibold">{sortingProgress}%</p>
-              </div>
-              <div className="rounded-full bg-emerald-400/20 p-3 text-emerald-200">
-                <Truck className="h-6 w-6" />
-              </div>
-            </div>
-            <div className="mt-5 h-3 overflow-hidden rounded-full bg-white/15">
-              <div className="h-full rounded-full bg-emerald-300 transition-all duration-700" style={{ width: `${sortingProgress}%` }} />
+            <div className="grid grid-cols-2 gap-4">
+              <RingGauge label="Sorted" tone="#6ee7b7" value={sortingProgress} />
+              <RingGauge label="Reserved" tone="#93c5fd" value={pct(reservedItems, inventoryTotal)} />
             </div>
             <div className="mt-5 grid grid-cols-3 gap-3 text-sm">
               <HeroStat label="Packages" value={packageRows.length} />
@@ -111,6 +119,46 @@ export default function DashboardPage() {
         <MetricCard delay="80ms" icon={Clock3} label="Payables" tone="amber" value={formatFils(openPayables)} />
         <MetricCard delay="160ms" icon={CheckCircle2} label="Collected" tone="sky" value={formatFils(cashCollected)} />
         <MetricCard delay="240ms" icon={ReceiptText} label="Credit notes" tone="rose" value={formatFils(credited)} />
+      </div>
+
+      <div className="grid gap-4 xl:grid-cols-[360px_minmax(0,1fr)]">
+        <section className="sortlot-fade-up rounded-md border bg-slate-950 p-5 text-white shadow-sm [animation-delay:260ms]">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-semibold">Finance Orbit</h2>
+              <p className="mt-1 text-sm text-white/60">Money movement by category.</p>
+            </div>
+            <Radar className="h-5 w-5 text-cyan-200" />
+          </div>
+          <div className="mt-6 flex items-center justify-center">
+            <DonutChart
+              segments={[
+                { color: "#34d399", label: "Receivables", value: pct(openReceivables, financeTotal) },
+                { color: "#f59e0b", label: "Payables", value: pct(openPayables, financeTotal) },
+                { color: "#38bdf8", label: "Collected", value: pct(cashCollected, financeTotal) },
+                { color: "#fb7185", label: "Credit", value: pct(credited, financeTotal) },
+              ]}
+            />
+          </div>
+        </section>
+
+        <section className="sortlot-fade-up rounded-md border bg-background p-5 shadow-sm [animation-delay:320ms]">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-semibold">Inventory Rings</h2>
+              <p className="mt-1 text-sm text-muted-foreground">Stock readiness and reservation pressure.</p>
+            </div>
+            <Link className={buttonVariants({ size: "sm", variant: "outline" })} href="/items">
+              View items
+              <ArrowUpRight className="h-4 w-4" />
+            </Link>
+          </div>
+          <div className="mt-6 grid gap-4 sm:grid-cols-3">
+            <CircleMetric color="#10b981" label="Available" value={pct(availableItems, inventoryTotal)} />
+            <CircleMetric color="#2563eb" label="Reserved" value={pct(reservedItems, inventoryTotal)} />
+            <CircleMetric color="#111827" label="Sorted packages" value={sortingProgress} />
+          </div>
+        </section>
       </div>
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1.25fr)_minmax(360px,0.75fr)]">
@@ -189,6 +237,81 @@ function HeroStat({ label, value }: { label: string; value: number }) {
   );
 }
 
+function RingGauge({ label, tone, value }: { label: string; tone: string; value: number }) {
+  const radius = 42;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (Math.min(value, 100) / 100) * circumference;
+
+  return (
+    <div className="rounded-md border border-white/15 bg-white/10 p-3 text-center">
+      <svg className="mx-auto h-28 w-28 -rotate-90" viewBox="0 0 112 112">
+        <circle cx="56" cy="56" fill="none" r={radius} stroke="rgba(255,255,255,.16)" strokeWidth="10" />
+        <circle
+          cx="56"
+          cy="56"
+          fill="none"
+          r={radius}
+          stroke={tone}
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+          strokeLinecap="round"
+          strokeWidth="10"
+        />
+      </svg>
+      <div className="-mt-20 pb-8">
+        <div className="text-2xl font-semibold">{value}%</div>
+        <div className="text-xs text-white/60">{label}</div>
+      </div>
+    </div>
+  );
+}
+
+function DonutChart({ segments }: { segments: Array<{ color: string; label: string; value: number }> }) {
+  let current = 0;
+  const gradient = segments
+    .map((segment) => {
+      const start = current;
+      current += segment.value;
+      return `${segment.color} ${start}% ${current}%`;
+    })
+    .join(", ");
+
+  return (
+    <div className="grid w-full gap-5 sm:grid-cols-[180px_minmax(0,1fr)] sm:items-center">
+      <div className="relative mx-auto h-44 w-44 rounded-full" style={{ background: `conic-gradient(${gradient || "#334155 0% 100%"})` }}>
+        <div className="absolute inset-6 rounded-full bg-slate-950" />
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <span className="text-3xl font-semibold">100%</span>
+          <span className="text-xs text-white/55">tracked</span>
+        </div>
+      </div>
+      <div className="space-y-3">
+        {segments.map((segment) => (
+          <div key={segment.label} className="flex items-center justify-between text-sm">
+            <span className="flex items-center gap-2 text-white/70">
+              <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: segment.color }} />
+              {segment.label}
+            </span>
+            <span className="font-semibold">{segment.value}%</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function CircleMetric({ color, label, value }: { color: string; label: string; value: number }) {
+  return (
+    <div className="rounded-md border p-4 text-center">
+      <div className="relative mx-auto h-28 w-28 rounded-full" style={{ background: `conic-gradient(${color} ${value}%, #e5e7eb ${value}% 100%)` }}>
+        <div className="absolute inset-3 rounded-full bg-background" />
+        <div className="absolute inset-0 flex items-center justify-center text-xl font-semibold">{value}%</div>
+      </div>
+      <p className="mt-3 text-sm font-medium">{label}</p>
+    </div>
+  );
+}
+
 function MetricCard({
   delay,
   icon: Icon,
@@ -197,7 +320,7 @@ function MetricCard({
   value,
 }: {
   delay: string;
-  icon: typeof Banknote;
+  icon: LucideIcon;
   label: string;
   tone: "emerald" | "amber" | "sky" | "rose";
   value: string;
@@ -224,7 +347,7 @@ function MetricCard({
   );
 }
 
-function MiniStat({ icon: Icon, label, value }: { icon: typeof Boxes; label: string; value: number }) {
+function MiniStat({ icon: Icon, label, value }: { icon: LucideIcon; label: string; value: number }) {
   return (
     <div className="flex items-center justify-between rounded-md border p-3">
       <div className="flex items-center gap-2">
