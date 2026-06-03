@@ -19,5 +19,9 @@ class DatabaseSeeder extends Seeder
             PricingTierSeeder::class,
             ItemTypeSeeder::class,
         ]);
+
+        if ($this->container->make('app')->environment('local')) {
+            $this->call(LocalDemoSeeder::class);
+        }
     }
 }

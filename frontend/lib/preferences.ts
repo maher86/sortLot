@@ -71,7 +71,10 @@ export function useUpsertPricingTier() {
 
       return response.data.data;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["pricing-tiers"] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["pricing-tiers"] });
+      queryClient.invalidateQueries({ queryKey: ["preference-options"] });
+    },
   });
 }
 
@@ -97,6 +100,9 @@ export function useUpsertItemType() {
 
       return response.data.data;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["item-types"] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["item-types"] });
+      queryClient.invalidateQueries({ queryKey: ["preference-options"] });
+    },
   });
 }

@@ -21,6 +21,16 @@ import {
 
 const tabs = ["Company", "Pricing Tiers", "Item Types", "Invoice Settings", "VAT Settings"] as const;
 
+function errorMessage(error: unknown, fallback: string) {
+  if (typeof error === "object" && error && "response" in error) {
+    const response = (error as { response?: { data?: { message?: string } } }).response;
+
+    return response?.data?.message ?? fallback;
+  }
+
+  return fallback;
+}
+
 export default function PreferencesPage() {
   const [activeTab, setActiveTab] = useState<(typeof tabs)[number]>("Company");
 
@@ -163,9 +173,24 @@ function PricingTiersPanel() {
   const [draft, setDraft] = useState<Partial<PricingTier>>({ code: "", label: "", price_per_kg_fils: 0, sort_order: 0 });
 
   async function save(payload: Partial<PricingTier>) {
-    await upsert.mutateAsync(payload);
-    toast.success("Pricing tier saved");
-    setDraft({ code: "", label: "", price_per_kg_fils: 0, sort_order: 0 });
+    const normalized = {
+      ...payload,
+      code: payload.code?.trim(),
+      label: payload.label?.trim(),
+    };
+
+    if (!normalized.id && (!normalized.code || !normalized.label)) {
+      toast.error("Code and label are required");
+      return;
+    }
+
+    try {
+      await upsert.mutateAsync(normalized);
+      toast.success("Pricing tier saved");
+      setDraft({ code: "", label: "", price_per_kg_fils: 0, sort_order: 0 });
+    } catch (error) {
+      toast.error(errorMessage(error, "Pricing tier could not be saved"));
+    }
   }
 
   return (
@@ -180,7 +205,9 @@ function PricingTiersPanel() {
           type="number"
           value={draft.price_per_kg_fils ?? ""}
         />
-        <Button onClick={() => save(draft)}>Add</Button>
+        <Button disabled={upsert.isPending} onClick={() => save(draft)}>
+          Add
+        </Button>
       </div>
       <Table>
         <TableHeader>
@@ -222,16 +249,32 @@ function ItemTypesPanel() {
   const [draft, setDraft] = useState<Partial<ItemTypeOption>>({ name: "" });
 
   async function save(payload: Partial<ItemTypeOption>) {
-    await upsert.mutateAsync(payload);
-    toast.success("Item type saved");
-    setDraft({ name: "" });
+    const normalized = {
+      ...payload,
+      name: payload.name?.trim(),
+    };
+
+    if (!normalized.id && !normalized.name) {
+      toast.error("Item type name is required");
+      return;
+    }
+
+    try {
+      await upsert.mutateAsync(normalized);
+      toast.success("Item type saved");
+      setDraft({ name: "" });
+    } catch (error) {
+      toast.error(errorMessage(error, "Item type could not be saved"));
+    }
   }
 
   return (
     <div className="space-y-4 rounded-md border bg-background p-4">
       <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
         <Input aria-label="Item type name" onChange={(event) => setDraft({ name: event.target.value })} placeholder="Type name" value={draft.name ?? ""} />
-        <Button onClick={() => save(draft)}>Add</Button>
+        <Button disabled={upsert.isPending} onClick={() => save(draft)}>
+          Add
+        </Button>
       </div>
       <Table>
         <TableHeader>

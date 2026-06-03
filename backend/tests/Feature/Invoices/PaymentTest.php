@@ -55,4 +55,29 @@ class PaymentTest extends TestCase
             ->assertJsonPath('data.balance_fils', 0)
             ->assertJsonPath('data.status', InvoiceStatus::Paid->value);
     }
+
+    public function test_payment_receipt_pdf_can_be_downloaded(): void
+    {
+        $this->seed();
+        $user = User::where('email', 'admin@sortlot.local')->firstOrFail();
+        Sanctum::actingAs($user);
+        $customer = Customer::query()->create(['name' => 'Receipt Customer']);
+
+        $invoiceId = $this->postJson('/api/v1/sales-orders', [
+            'customer_id' => $customer->id,
+            'issue_date' => now()->toDateString(),
+            'lines' => [['description' => 'Receipt line', 'quantity' => 1, 'unit_price_fils' => 10000]],
+        ])->assertCreated()->json('data.id');
+
+        $paymentId = $this->postJson('/api/v1/payments', [
+            'invoice_id' => $invoiceId,
+            'amount_fils' => 10000,
+            'payment_method' => PaymentMethod::Cash->value,
+            'payment_date' => now()->toDateString(),
+        ])->assertCreated()->json('data.id');
+
+        $this->get("/api/v1/payments/{$paymentId}/pdf")
+            ->assertOk()
+            ->assertHeader('Content-Type', 'application/pdf');
+    }
 }
