@@ -4,15 +4,18 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Role;
 
 class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        $this->call([
-            PermissionSeeder::class,
-            RoleSeeder::class,
-        ]);
+        if (! Role::query()->where('name', 'super_admin')->where('guard_name', 'web')->exists()) {
+            $this->call([
+                PermissionSeeder::class,
+                RoleSeeder::class,
+            ]);
+        }
 
         $admin = User::updateOrCreate(
             ['email' => 'admin@sortlot.local'],

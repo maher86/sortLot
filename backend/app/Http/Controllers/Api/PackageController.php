@@ -48,14 +48,14 @@ class PackageController extends Controller
             'created_by' => $request->user()->id,
         ]);
 
-        return PackageResource::make($package->fresh())->response()->setStatusCode(201);
+        return PackageResource::make($this->packageWithCounts($package))->response()->setStatusCode(201);
     }
 
     public function show(Package $package): PackageResource
     {
         $this->authorize('view', $package);
 
-        return PackageResource::make($package);
+        return PackageResource::make($this->packageWithCounts($package));
     }
 
     public function update(PackageRequest $request, Package $package): PackageResource
@@ -68,7 +68,7 @@ class PackageController extends Controller
 
         $package->update($request->validated());
 
-        return PackageResource::make($package->fresh());
+        return PackageResource::make($this->packageWithCounts($package));
     }
 
     public function destroy(Package $package): JsonResponse
@@ -147,5 +147,15 @@ class PackageController extends Controller
             PackageStatus::InCustoms,
             PackageStatus::InWarehouse,
         ], true);
+    }
+
+    private function packageWithCounts(Package $package): Package
+    {
+        return Package::query()
+            ->withCount([
+                'items',
+                'items as available_items_count' => fn ($query) => $query->where('status', ItemStatus::Available->value),
+            ])
+            ->findOrFail($package->id);
     }
 }
