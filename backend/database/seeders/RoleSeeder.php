@@ -113,10 +113,7 @@ class RoleSeeder extends Seeder
                 ->whereIn('name', $permissions)
                 ->get();
 
-            Role::query()->firstOrCreate([
-                'name' => $roleName,
-                'guard_name' => 'web',
-            ])->syncPermissions($permissionModels);
+            Role::findOrCreate($roleName, 'web')->syncPermissions($permissionModels);
         }
 
         app(PermissionRegistrar::class)->forgetCachedPermissions();
