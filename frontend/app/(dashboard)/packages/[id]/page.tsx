@@ -2,7 +2,7 @@
 
 import { useParams } from "next/navigation";
 import { useMemo, useState } from "react";
-import { Boxes, Pencil, Plus, Play, Save, Trash2 } from "lucide-react";
+import { Boxes, CheckCircle2, Pencil, Plus, Play, Save, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { StatusBadge } from "@/components/packages/StatusBadge";
@@ -56,6 +56,7 @@ export default function PackageDetailPage() {
 
   const canMutateDetails = sortlotPackage ? mutableStatuses.includes(sortlotPackage.status) : false;
   const canStartSorting = sortlotPackage ? mutableStatuses.includes(sortlotPackage.status) : false;
+  const canFinishSorting = sortlotPackage?.status === "sorting" && items.length > 0;
   const canDelete = canMutateDetails && items.length === 0;
   const timeline = useMemo(
     () =>
@@ -73,6 +74,15 @@ export default function PackageDetailPage() {
       toast.success("Sorting started");
     } catch {
       toast.error("Sorting could not be started");
+    }
+  }
+
+  async function finishSorting() {
+    try {
+      await changeStatus.mutateAsync("sorted");
+      toast.success("Package marked as sorted");
+    } catch {
+      toast.error("Package could not be marked as sorted");
     }
   }
 
@@ -174,6 +184,41 @@ export default function PackageDetailPage() {
             <Plus className="h-4 w-4" />
             Add items
           </Button>
+        </div>
+      </div>
+
+      <div className="rounded-md border bg-background p-4">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h2 className="text-base font-semibold">Next action</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {sortlotPackage.status === "sorting"
+                ? "Sorting is open. Add the sorted items, then mark the package as sorted."
+                : sortlotPackage.status === "sorted"
+                  ? "Sorting is complete. Available items can now be used in sales orders."
+                  : "Move the package to sorting when it arrives in the warehouse."}
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {sortlotPackage.status === "sorting" ? (
+              <>
+                <Button onClick={() => setIsAddOpen(true)} variant="outline">
+                  <Plus className="h-4 w-4" />
+                  Add items
+                </Button>
+                <Button disabled={!canFinishSorting || changeStatus.isPending} onClick={finishSorting}>
+                  <CheckCircle2 className="h-4 w-4" />
+                  Mark sorted
+                </Button>
+              </>
+            ) : null}
+            {canStartSorting ? (
+              <Button disabled={changeStatus.isPending} onClick={startSorting}>
+                <Play className="h-4 w-4" />
+                Start sorting
+              </Button>
+            ) : null}
+          </div>
         </div>
       </div>
 
