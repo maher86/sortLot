@@ -176,10 +176,17 @@ export default function PackageDetailPage() {
             <Trash2 className="h-4 w-4" />
             Delete
           </Button>
-          <Button disabled={!canStartSorting || changeStatus.isPending} onClick={startSorting} variant="outline">
-            <Play className="h-4 w-4" />
-            Start sorting
-          </Button>
+          {sortlotPackage.status === "sorting" ? (
+            <Button disabled={!canFinishSorting || changeStatus.isPending} onClick={finishSorting} variant="outline">
+              <CheckCircle2 className="h-4 w-4" />
+              Mark sorted
+            </Button>
+          ) : (
+            <Button disabled={!canStartSorting || changeStatus.isPending} onClick={startSorting} variant="outline">
+              <Play className="h-4 w-4" />
+              Start sorting
+            </Button>
+          )}
           <Button onClick={() => setIsAddOpen(true)}>
             <Plus className="h-4 w-4" />
             Add items
