@@ -64,6 +64,7 @@ export default function PackageDetailPage() {
         status,
         isActive: sortlotPackage?.status === status,
         isPast: sortlotPackage ? packageStatuses.indexOf(status) < packageStatuses.indexOf(sortlotPackage.status) : false,
+        canSelect: sortlotPackage ? packageStatuses.indexOf(status) > packageStatuses.indexOf(sortlotPackage.status) : false,
       })),
     [sortlotPackage],
   );
@@ -78,11 +79,15 @@ export default function PackageDetailPage() {
   }
 
   async function finishSorting() {
+    await changePackageStatus("sorted");
+  }
+
+  async function changePackageStatus(status: (typeof packageStatuses)[number]) {
     try {
-      await changeStatus.mutateAsync("sorted");
-      toast.success("Package marked as sorted");
+      await changeStatus.mutateAsync(status);
+      toast.success(`Package status changed to ${formatStatus(status)}`);
     } catch {
-      toast.error("Package could not be marked as sorted");
+      toast.error("Package status could not be changed");
     }
   }
 
@@ -176,10 +181,17 @@ export default function PackageDetailPage() {
             <Trash2 className="h-4 w-4" />
             Delete
           </Button>
-          <Button disabled={!canStartSorting || changeStatus.isPending} onClick={startSorting} variant="outline">
-            <Play className="h-4 w-4" />
-            Start sorting
-          </Button>
+          {sortlotPackage.status === "sorting" ? (
+            <Button disabled={!canFinishSorting || changeStatus.isPending} onClick={finishSorting} variant="outline">
+              <CheckCircle2 className="h-4 w-4" />
+              Mark sorted
+            </Button>
+          ) : (
+            <Button disabled={!canStartSorting || changeStatus.isPending} onClick={startSorting} variant="outline">
+              <Play className="h-4 w-4" />
+              Start sorting
+            </Button>
+          )}
           <Button onClick={() => setIsAddOpen(true)}>
             <Plus className="h-4 w-4" />
             Add items
@@ -252,13 +264,21 @@ export default function PackageDetailPage() {
           <h2 className="text-base font-semibold">Status timeline</h2>
           <ol className="mt-4 grid gap-2 sm:grid-cols-3 xl:grid-cols-5">
             {timeline.map((step) => (
-              <li
-                className={`rounded-md border px-3 py-2 text-sm ${
-                  step.isActive || step.isPast ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "text-muted-foreground"
-                }`}
-                key={step.status}
-              >
-                {formatStatus(step.status)}
+              <li key={step.status}>
+                <button
+                  className={`min-h-14 w-full rounded-md border px-3 py-2 text-left text-sm transition ${
+                    step.isActive || step.isPast
+                      ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                      : step.canSelect
+                        ? "bg-background text-foreground hover:border-primary hover:bg-muted"
+                        : "text-muted-foreground"
+                  }`}
+                  disabled={!step.canSelect || changeStatus.isPending}
+                  onClick={() => changePackageStatus(step.status)}
+                  type="button"
+                >
+                  {formatStatus(step.status)}
+                </button>
               </li>
             ))}
           </ol>
