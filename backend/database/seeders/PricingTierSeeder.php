@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\PricingTier;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class PricingTierSeeder extends Seeder
 {
@@ -22,11 +22,22 @@ class PricingTierSeeder extends Seeder
 
     public function run(): void
     {
-        foreach (self::TIERS as $tier) {
-            PricingTier::query()->updateOrCreate(
-                ['code' => $tier['code']],
-                ['is_active' => true, 'description' => null, ...$tier],
-            );
-        }
+        $now = now();
+
+        DB::table('pricing_tiers')->upsert(
+            collect(self::TIERS)->map(fn (array $tier): array => [
+                'code' => $tier['code'],
+                'label' => $tier['label'],
+                'price_per_kg_fils' => $tier['price_per_kg_fils'] ?? null,
+                'price_flat_fils' => $tier['price_flat_fils'] ?? null,
+                'description' => null,
+                'is_active' => true,
+                'sort_order' => $tier['sort_order'],
+                'created_at' => $now,
+                'updated_at' => $now,
+            ])->all(),
+            ['code'],
+            ['label', 'price_per_kg_fils', 'price_flat_fils', 'description', 'is_active', 'sort_order', 'updated_at'],
+        );
     }
 }

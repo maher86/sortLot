@@ -132,14 +132,16 @@ export function useInvoice(kind: InvoiceKind, id: string) {
   });
 }
 
-export function usePayments(invoiceId?: string) {
+export function usePayments(invoiceId?: string, filters: { from?: string; to?: string } = {}) {
   return useQuery({
-    queryKey: ["payments", invoiceId ?? "all"],
+    queryKey: ["payments", invoiceId ?? "all", filters],
     queryFn: async () => {
       const response = await api.get<ListResponse<Payment>>("/payments", {
         params: {
           per_page: 50,
           "filter[invoice_id]": invoiceId || undefined,
+          from: filters.from || undefined,
+          to: filters.to || undefined,
         },
       });
 

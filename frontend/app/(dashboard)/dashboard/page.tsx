@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import {
   ArrowUpRight,
   Banknote,
@@ -17,6 +18,8 @@ import {
 } from "lucide-react";
 
 import { buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { formatFils, useCustomers, useSuppliers } from "@/lib/contacts";
 import { formatStatus as formatInvoiceStatus, useInvoices, usePayments, type Invoice } from "@/lib/invoices";
 import { useItems } from "@/lib/items";
@@ -35,10 +38,15 @@ function pct(value: number, total: number) {
 }
 
 export default function DashboardPage() {
-  const sales = useInvoices("sales");
-  const purchase = useInvoices("purchase");
-  const credit = useInvoices("credit");
-  const payments = usePayments("");
+  const [dateFilter, setDateFilter] = useState({ from: "", to: "" });
+  const activeDateFilter = {
+    from: dateFilter.from || undefined,
+    to: dateFilter.to || undefined,
+  };
+  const sales = useInvoices("sales", activeDateFilter);
+  const purchase = useInvoices("purchase", activeDateFilter);
+  const credit = useInvoices("credit", activeDateFilter);
+  const payments = usePayments("", activeDateFilter);
   const packages = usePackages({ page: 1 });
   const items = useItems({});
   const customers = useCustomers();
@@ -111,6 +119,36 @@ export default function DashboardPage() {
               <HeroStat label="Items" value={itemRows.length} />
             </div>
           </div>
+        </div>
+      </div>
+
+      <div className="sortlot-fade-up flex flex-col gap-3 rounded-md border bg-background p-4 shadow-sm sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h2 className="text-base font-semibold">Dashboard Filters</h2>
+          <p className="mt-1 text-sm text-muted-foreground">Filter finance, payments, and invoice activity by date.</p>
+        </div>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
+          <label className="space-y-1 text-xs font-medium text-muted-foreground">
+            From
+            <Input
+              className="w-full sm:w-40"
+              onChange={(event) => setDateFilter((current) => ({ ...current, from: event.target.value }))}
+              type="date"
+              value={dateFilter.from}
+            />
+          </label>
+          <label className="space-y-1 text-xs font-medium text-muted-foreground">
+            To
+            <Input
+              className="w-full sm:w-40"
+              onChange={(event) => setDateFilter((current) => ({ ...current, to: event.target.value }))}
+              type="date"
+              value={dateFilter.to}
+            />
+          </label>
+          <Button onClick={() => setDateFilter({ from: "", to: "" })} variant="outline">
+            All time
+          </Button>
         </div>
       </div>
 

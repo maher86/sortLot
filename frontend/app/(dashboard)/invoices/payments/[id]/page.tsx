@@ -60,10 +60,29 @@ export default function PaymentDetailPage() {
       }
 
       const url = window.URL.createObjectURL(response.data);
+      const dataUrl = await blobToDataUrl(response.data);
       const filename = `payment-receipt-${currentPayment.reference ?? currentPayment.id}.pdf`;
 
       if (popup) {
-        popup.location.href = url;
+        popup.document.open();
+        popup.document.write(`
+          <!doctype html>
+          <html>
+            <head>
+              <title>${filename}</title>
+              <style>
+                html, body { height: 100%; margin: 0; background: #111827; }
+                iframe { border: 0; height: 100%; width: 100%; }
+                a { background: #fff; border-radius: 6px; color: #111827; font: 14px Arial; left: 16px; padding: 8px 10px; position: fixed; top: 16px; text-decoration: none; z-index: 2; }
+              </style>
+            </head>
+            <body>
+              <a href="${dataUrl}" download="${filename}">Download PDF</a>
+              <iframe src="${dataUrl}" title="${filename}"></iframe>
+            </body>
+          </html>
+        `);
+        popup.document.close();
       }
 
       const link = document.createElement("a");
@@ -124,6 +143,15 @@ export default function PaymentDetailPage() {
       </div>
     </section>
   );
+}
+
+function blobToDataUrl(blob: Blob) {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.addEventListener("loadend", () => resolve(String(reader.result)));
+    reader.addEventListener("error", () => reject(reader.error));
+    reader.readAsDataURL(blob);
+  });
 }
 
 function Metric({ label, value }: { label: string; value: string }) {

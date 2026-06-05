@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\ItemType;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class ItemTypeSeeder extends Seeder
@@ -28,11 +28,19 @@ class ItemTypeSeeder extends Seeder
 
     public function run(): void
     {
-        foreach (self::TYPES as $index => $name) {
-            ItemType::query()->updateOrCreate(
-                ['slug' => Str::slug($name)],
-                ['name' => $name, 'is_active' => true, 'sort_order' => $index],
-            );
-        }
+        $now = now();
+
+        DB::table('item_types')->upsert(
+            collect(self::TYPES)->map(fn (string $name, int $index): array => [
+                'name' => $name,
+                'slug' => Str::slug($name),
+                'is_active' => true,
+                'sort_order' => $index,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ])->all(),
+            ['slug'],
+            ['name', 'is_active', 'sort_order', 'updated_at'],
+        );
     }
 }

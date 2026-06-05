@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder
             ItemTypeSeeder::class,
         ]);
 
-        if ($this->container->make('app')->environment('local')) {
+        if (app()->environment('local') && ! app()->runningInConsole()) {
             $this->call(LocalDemoSeeder::class);
         }
     }
